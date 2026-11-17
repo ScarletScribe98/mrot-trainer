@@ -1,0 +1,31 @@
+/* UI gestures: 180–360 ms. The ambient light is intentionally slower. */
+.screen { animation: archive-page 240ms var(--ease) both; }
+.document-stage { animation: archive-card 320ms var(--ease) both; }
+.hint { transform-origin: top left; animation: inserted-sheet 260ms var(--ease) both; }
+.stamp { transform-origin: center; animation: pressed-stamp 360ms var(--ease) both; }
+.stamp-ink { animation: ink-impression 180ms ease-out 110ms both; }
+.verdict-seal { animation: verdict-entry 220ms ease-out both; }
+.hero-light { transform-origin: 80% 10%; animation: quiet-lamp 16s ease-in-out infinite alternate; }
+@keyframes archive-page {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes archive-card {
+  from { opacity: 0; transform: translateX(14px) rotate(.5deg); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes inserted-sheet {
+  from { opacity: 0; transform: translateY(-8px) rotate(-.4deg); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes pressed-stamp {
+  0% { opacity: 0; transform: translateY(-8px) scale(1.09) rotate(-5deg); }
+  60% { opacity: 1; transform: translateY(1px) scale(.99) rotate(-3deg); }
+  100% { opacity: 1; transform: translateY(0) scale(1) rotate(-3deg); }
+}
+@keyframes ink-impression { from { opacity: .35; } to { opacity: 1; } }
+@keyframes verdict-entry { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@keyframes quiet-lamp { from { transform: rotate(-2deg) scale(.97); } to { transform: rotate(2deg) scale(1.03); } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
