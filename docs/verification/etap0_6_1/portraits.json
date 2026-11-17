@@ -1,0 +1,92 @@
+{
+  "date": "2026-11-17",
+  "model": "GPT Image — встроенный image_gen; точная версия инструментом не раскрыта",
+  "mode": "built-in image_gen",
+  "processing": "Pillow 13.0.0; ImageOps.fit LANCZOS 320x400 centering 0.5/0.45; grayscale autocontrast cutoff 0.5; colorize #102d21/#e6e7d8; WebP method 6, maximum quality 92 constrained to 30000 bytes",
+  "portraits": [
+    {
+      "index": 1,
+      "profile": "vera",
+      "name": "Вера Соколова",
+      "role": "Специалист по снабжению",
+      "selected": "a",
+      "file": "public/assets/portraits/portrait-1.webp",
+      "bytes": 29388,
+      "width": 320,
+      "height": 400,
+      "quality": 83,
+      "sha256": "395495a314d6fa6acaec2a636fc67c5d2953a9efe2622598a1d745bac20e3e16",
+      "prompt": "Use case: stylized-concept. Production asset: one standalone raster portrait for an adult Russian educational archive game, part of a coherent six-person engraved portrait series. Vertical 4:5 canvas. Bust portrait, both shoulders fully within frame, head in natural three-quarter view, eye-level; full face visible, calm believable human expression, individual natural facial anatomy, subtle asymmetry. Fine traditional copperplate etching and drypoint crosshatching derived from realistic human observation, rich organic midtones and skin texture, no vector look, no flat geometric face or mask. Gentle side light from a desk lamp at upper left, readable eyes and facial planes, deep neutral bottle-green background fading into subtle paper grain. Strict two-ink palette: very deep bottle green #102d21 and creamy paper #e6e7d8, intermediate tones built by fine hatching. Restrained documentary dignity, ordinary working people, not fashion models or heroes. Same printmaking technique, engraving density, portrait scale and subdued studio backdrop across the whole series. No hands in crop. No text, letters, numbers, labels, nameplates, border, logos, signatures, watermark, hats, uniforms with badges, weapons, Soviet symbols, blood, famous people or recognizable real people. Draw precisely ONE person, no collage or contact sheet. Fictional woman aged about 38, procurement specialist Vera Sokolova. Long oval face, thoughtful warm eyes, slightly prominent cheekbones, dark hair loosely pinned back with a few natural wisps. Practical unbranded blouse and softly tailored work cardigan, small plain pencil visible in breast pocket. Quiet attentive half-smile, head turned slightly to viewer's right."
+    },
+    {
+      "index": 2,
+      "profile": "mark",
+      "name": "Марк Лебедев",
+      "role": "Оператор оборудования",
+      "selected": "b",
+      "file": "public/assets/portraits/portrait-2.webp",
+      "bytes": 29654,
+      "width": 320,
+      "height": 400,
+      "quality": 86,
+      "sha256": "e24a92ed3410d71f159a6836d859945784cb9b9f5c2db9096b2fcd3deb9b6f5c",
+      "prompt": "Use case: stylized-concept. Production asset: one standalone raster portrait for an adult Russian educational archive game, part of a coherent six-person engraved portrait series. Vertical 4:5 canvas. Bust portrait, both shoulders fully within frame, head in natural three-quarter view, eye-level; full face visible, calm believable human expression, individual natural facial anatomy, subtle asymmetry. Fine traditional copperplate etching and drypoint crosshatching derived from realistic human observation, rich organic midtones and skin texture, no vector look, no flat geometric face or mask. Gentle side light from a desk lamp at upper left, readable eyes and facial planes, deep neutral bottle-green background fading into subtle paper grain. Strict two-ink palette: very deep bottle green #102d21 and creamy paper #e6e7d8, intermediate tones built by fine hatching. Restrained documentary dignity, ordinary working people, not fashion models or heroes. Same printmaking technique, engraving density, portrait scale and subdued studio backdrop across the whole series. No hands in crop. No text, letters, numbers, labels, nameplates, border, logos, signatures, watermark, hats, uniforms with badges, weapons, Soviet symbols, blood, famous people or recognizable real people. Draw precisely ONE person, no collage or contact sheet. Fictional man aged about 44, equipment operator Mark Lebedev. Lean angular face with prominent nose, short slightly untidy dark hair and a hint of stubble, fine lines beside eyes. Practical unbranded industrial work jacket over a plain crewneck, a plain mechanical pencil in chest pocket. Relaxed confident expression, slight three-quarter turn toward viewer's left."
+    },
+    {
+      "index": 3,
+      "profile": "alina",
+      "name": "Алина Белова",
+      "role": "Техник производства",
+      "selected": "a",
+      "file": "public/assets/portraits/portrait-3.webp",
+      "bytes": 29916,
+      "width": 320,
+      "height": 400,
+      "quality": 82,
+      "sha256": "4c3ee7211eba25ba7827ae36db69e9d52750e781af642c92f440be10d7453852",
+      "prompt": "Use case: stylized-concept. Production asset: one standalone raster portrait for an adult Russian educational archive game, part of a coherent six-person engraved portrait series. Vertical 4:5 canvas. Bust portrait, both shoulders fully within frame, head in natural three-quarter view, eye-level; full face visible, calm believable human expression, individual natural facial anatomy, subtle asymmetry. Fine traditional copperplate etching and drypoint crosshatching derived from realistic human observation, rich organic midtones and skin texture, no vector look, no flat geometric face or mask. Gentle side light from a desk lamp at upper left, readable eyes and facial planes, deep neutral bottle-green background fading into subtle paper grain. Strict two-ink palette: very deep bottle green #102d21 and creamy paper #e6e7d8, intermediate tones built by fine hatching. Restrained documentary dignity, ordinary working people, not fashion models or heroes. Same printmaking technique, engraving density, portrait scale and subdued studio backdrop across the whole series. No hands in crop. No text, letters, numbers, labels, nameplates, border, logos, signatures, watermark, hats, uniforms with badges, weapons, Soviet symbols, blood, famous people or recognizable real people. Draw precisely ONE person, no collage or contact sheet. Fictional woman aged about 29, production technician Alina Belova. Youthful broad oval face with freckles, short wavy hair tucked behind ears, slim plain round eyeglasses with clear eyes visible behind lenses. Practical unbranded technician's work coat with a small caliper clip at chest pocket. Focused curious expression, three-quarter head toward viewer's right."
+    },
+    {
+      "index": 4,
+      "profile": "roman",
+      "name": "Роман Мельников",
+      "role": "Кладовщик",
+      "selected": "a",
+      "file": "public/assets/portraits/portrait-4.webp",
+      "bytes": 28732,
+      "width": 320,
+      "height": 400,
+      "quality": 82,
+      "sha256": "87ed66e5d17940513208090808c6ae21accb4b935acc5bc6078c8080fa410338",
+      "prompt": "Use case: stylized-concept. Production asset: one standalone raster portrait for an adult Russian educational archive game, part of a coherent six-person engraved portrait series. Vertical 4:5 canvas. Bust portrait, both shoulders fully within frame, head in natural three-quarter view, eye-level; full face visible, calm believable human expression, individual natural facial anatomy, subtle asymmetry. Fine traditional copperplate etching and drypoint crosshatching derived from realistic human observation, rich organic midtones and skin texture, no vector look, no flat geometric face or mask. Gentle side light from a desk lamp at upper left, readable eyes and facial planes, deep neutral bottle-green background fading into subtle paper grain. Strict two-ink palette: very deep bottle green #102d21 and creamy paper #e6e7d8, intermediate tones built by fine hatching. Restrained documentary dignity, ordinary working people, not fashion models or heroes. Same printmaking technique, engraving density, portrait scale and subdued studio backdrop across the whole series. No hands in crop. No text, letters, numbers, labels, nameplates, border, logos, signatures, watermark, hats, uniforms with badges, weapons, Soviet symbols, blood, famous people or recognizable real people. Draw precisely ONE person, no collage or contact sheet. Fictional man aged about 36, warehouse stock clerk Roman Melnikov. Round broad face, short curly hair, neatly trimmed full beard, warm slightly narrowed eyes and sturdy neck. Plain checked work shirt under unbranded rugged waistcoat, small plain ring of two keys clipped on vest. Open kind expression, three-quarter head toward viewer's left."
+    },
+    {
+      "index": 5,
+      "profile": "nina",
+      "name": "Нина Орлова",
+      "role": "Диспетчер",
+      "selected": "b",
+      "file": "public/assets/portraits/portrait-5.webp",
+      "bytes": 29350,
+      "width": 320,
+      "height": 400,
+      "quality": 82,
+      "sha256": "412b275e0a0d87ad38d0a76fd3d795481e74901eb87d0bba7558456fa6142456",
+      "prompt": "Use case: stylized-concept. Production asset: one standalone raster portrait for an adult Russian educational archive game, part of a coherent six-person engraved portrait series. Vertical 4:5 canvas. Bust portrait, both shoulders fully within frame, head in natural three-quarter view, eye-level; full face visible, calm believable human expression, individual natural facial anatomy, subtle asymmetry. Fine traditional copperplate etching and drypoint crosshatching derived from realistic human observation, rich organic midtones and skin texture, no vector look, no flat geometric face or mask. Gentle side light from a desk lamp at upper left, readable eyes and facial planes, deep neutral bottle-green background fading into subtle paper grain. Strict two-ink palette: very deep bottle green #102d21 and creamy paper #e6e7d8, intermediate tones built by fine hatching. Restrained documentary dignity, ordinary working people, not fashion models or heroes. Same printmaking technique, engraving density, portrait scale and subdued studio backdrop across the whole series. No hands in crop. No text, letters, numbers, labels, nameplates, border, logos, signatures, watermark, hats, uniforms with badges, weapons, Soviet symbols, blood, famous people or recognizable real people. Draw precisely ONE person, no collage or contact sheet. Fictional woman aged about 58, dispatcher Nina Orlova. Rounded face, prominent cheekbones, soft crow's feet and natural neck lines, silver short swept-back hair. Plain collared blouse and cardigan, simple unbranded thin wired single-ear telephone headset. Attentive slightly amused expression, three-quarter head toward viewer's right."
+    },
+    {
+      "index": 6,
+      "profile": "operator",
+      "name": "Второй оператор",
+      "role": "Профиль фотокаталога",
+      "selected": "a",
+      "file": "public/assets/portraits/portrait-6.webp",
+      "bytes": 29774,
+      "width": 320,
+      "height": 400,
+      "quality": 85,
+      "sha256": "beafbd47c49a2c7ec76357639b07bf9306a92580200297a1cef75e5778fab388",
+      "prompt": "Use case: stylized-concept. Production asset: one standalone raster portrait for an adult Russian educational archive game, part of a coherent six-person engraved portrait series. Vertical 4:5 canvas. Bust portrait, both shoulders fully within frame, head in natural three-quarter view, eye-level; full face visible, calm believable human expression, individual natural facial anatomy, subtle asymmetry. Fine traditional copperplate etching and drypoint crosshatching derived from realistic human observation, rich organic midtones and skin texture, no vector look, no flat geometric face or mask. Gentle side light from a desk lamp at upper left, readable eyes and facial planes, deep neutral bottle-green background fading into subtle paper grain. Strict two-ink palette: very deep bottle green #102d21 and creamy paper #e6e7d8, intermediate tones built by fine hatching. Restrained documentary dignity, ordinary working people, not fashion models or heroes. Same printmaking technique, engraving density, portrait scale and subdued studio backdrop across the whole series. No hands in crop. No text, letters, numbers, labels, nameplates, border, logos, signatures, watermark, hats, uniforms with badges, weapons, Soviet symbols, blood, famous people or recognizable real people. Draw precisely ONE person, no collage or contact sheet. Fictional man aged about 63, a second anonymous industrial equipment operator, distinct from middle-aged Mark. Long weathered face with large nose, silver short swept hair, thin grey moustache, many gentle wrinkles, no glasses. Plain unbranded worn cotton work jacket, small plain steel ruler in breast pocket. Patient thoughtful expression, three-quarter head toward viewer's left."
+    }
+  ]
+}
