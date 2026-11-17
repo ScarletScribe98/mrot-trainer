@@ -1,0 +1,40 @@
+{
+  "name": "inspektor-truda",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "vitest run",
+    "test:browser": "playwright test",
+    "audit": "node scripts/audit.mjs",
+    "assets:icons": "node scripts/icons.mjs",
+    "licenses": "node scripts/licenses.mjs"
+  },
+  "dependencies": {
+    "preact": "^10.27.0"
+  },
+  "devDependencies": {
+    "@fontsource/source-serif-4": "^5.2.0",
+    "@fontsource/golos-text": "^5.2.0",
+    "@fontsource/ibm-plex-mono": "^5.2.0",
+    "@playwright/test": "^1.56.0",
+    "@preact/preset-vite": "^2.10.0",
+    "lighthouse": "^13.0.0",
+    "typescript": "^5.9.0",
+    "vite": "^7.2.0",
+    "vite-plugin-pwa": "^1.1.0",
+    "vitest": "^4.0.0",
+    "chrome-launcher": "^1.2.3"
+  },
+  "overrides": {
+    "workbox-build": {
+      "glob": "^14.0.6"
+    }
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}
