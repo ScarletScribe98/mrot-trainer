@@ -1,0 +1,19 @@
+
+> inspektor-truda@0.1.0 test:browser
+> playwright test
+
+[WebServer] (node:21548) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 6 tests using 1 worker
+
+(node:25560) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 tests\trainer.spec.ts:34:2 › Пять карточек, подсказки, сохранение, снимки 1920 (4.6s)
+  ok 2 tests\trainer.spec.ts:34:2 › Пять карточек, подсказки, сохранение, снимки 360 (3.0s)
+  ok 3 tests\trainer.spec.ts:76:1 › Чистое прохождение: 550 опыта, звук, музыка и сброс (1.1s)
+  ok 4 tests\trainer.spec.ts:88:1 › PWA: холодное открытие без сети и прохождение пяти карточек (1.2s)
+  ok 5 tests\trainer.spec.ts:100:1 › Повреждённое и недоступное хранилище (356ms)
+  ok 6 tests\trainer.spec.ts:109:1 › Ввод не округляет ответ молча; самостоятельное исправление даёт 70 (459ms)
+
+  6 passed (12.7s)

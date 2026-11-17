@@ -1,0 +1,20 @@
+DEV: title renders; Preact + Vite available
+vite v7.3.8 building client environment for production...
+transforming...
+✓ 14 modules transformed.
+rendering chunks...
+computing gzip size...
+work/base-dist/registerSW.js               0.16 kB
+work/base-dist/manifest.webmanifest        0.53 kB
+work/base-dist/index.html                  0.93 kB │ gzip:  0.56 kB
+work/base-dist/assets/index-C9fyEphO.css  36.44 kB │ gzip:  8.41 kB
+work/base-dist/assets/index-DA3jXxMs.js   46.66 kB │ gzip: 17.01 kB
+✓ built in 146ms
+
+PWA v1.3.0
+mode      generateSW
+precache  17 entries (165.82 KiB)
+files generated
+  work/base-dist/sw.js
+  work/base-dist/workbox-9c191d2f.js
+PAGES BASE: /mrot-trainer/ loads fonts, scripts and PWA; offline reload passes; no HTTP errors
