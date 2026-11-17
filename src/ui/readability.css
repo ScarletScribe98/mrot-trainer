@@ -1,0 +1,46 @@
+/* Light belongs to the set; a stable, dense surface belongs to every reading task. */
+.inspection-panel { position: relative; background: #0b1c14f7; border: 1px solid #45583e; padding: 23px 27px; box-shadow: 7px 14px 30px #0006; }
+.inspection-panel h2 { margin-top: 22px; }
+.panel-intro { color: #bdc9b9; }
+.formula { background: #22372b; }
+.formula small, .formula>.eyebrow { color: #becab8; }
+.verdict-options label { background: #102319; }
+.verdict-options .selected { background: #263d2c; }
+.amount-control { background: #08150e; }
+.hint { background: #243a2c; }
+.game-breadcrumb { background: #07150eea; padding: 6px 12px; }
+.game-heading>div:first-child { background: #07150ee6; padding: 11px 17px 13px; border-left: 2px solid #5d7755; }
+.card-counter { background: #07150ee6; padding: 10px 12px; }
+.document-caption { background: #07150eed; padding: 7px 10px; }
+.main-footer { background: #07150ee8; padding-inline: 12px; }
+.title-copy { isolation: isolate; }
+.title-copy::before { content: ''; position: absolute; z-index: -1; inset: -35px -85px -28px -35px; background: linear-gradient(90deg, #030c08e8 0%, #030c08d9 58%, #030c0870 82%, transparent); pointer-events: none; }
+.title-copy .title-description { color: #c5d0bf; }
+.storage-warning { background: #102319; padding: 14px; }
+@media (min-width:1600px) {
+  .game-heading h1 { font-size: 50px; }
+  .inspection-panel .eyebrow, .document-caption, .main-footer, .game-breadcrumb { font-size: 14px; }
+  .inspection-panel legend, .inspection-panel .panel-intro { font-size: 16px; }
+  .data-table dt { font-size: 16px; }
+  .data-table dd { font-size: 25px; }
+  .salary-row strong { font-size: 31px; }
+  .inspection-panel .formula strong { font-size: 35px; }
+}
+@media (max-width:1500px) and (min-width:761px) { .inspection-panel { padding: 22px; } }
+@media (max-width:760px) {
+  .inspection-panel { padding: 20px 17px; }
+  .game-heading>div:first-child { padding: 9px 10px 10px; }
+  .game-heading h1 { font-size: 30px; }
+  .game-heading .eyebrow { font-size: 9px; }
+  .card-counter { padding: 7px 8px; }
+  .game-breadcrumb { padding: 5px 9px; }
+  .inspection-panel h2 { font-size: 30px; }
+  .verdict-options { gap: 8px; }
+  .verdict-options label { font-size: 11px; padding: 10px 4px; gap: 5px; }
+  .inspection-panel .button { padding-inline: 13px; font-size: 13px; }
+  .reward-note { font-size: 10px; }
+  .hint { padding: 15px 13px; }
+  .title-copy::before { inset: -20px -20px -18px; background: linear-gradient(90deg, #030c08e8 0%, #030c08d9 60%, #030c0888); }
+  .document-caption { font-size: 10px; }
+  .main-footer { font-size: 11px; }
+}
