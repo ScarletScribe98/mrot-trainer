@@ -1,0 +1,254 @@
+[
+  {
+    "theme": "a",
+    "foreground": "text",
+    "background": "bg",
+    "ratio": 16.24,
+    "AA": true
+  },
+  {
+    "theme": "a",
+    "foreground": "muted",
+    "background": "bg",
+    "ratio": 9.34,
+    "AA": true
+  },
+  {
+    "theme": "a",
+    "foreground": "text",
+    "background": "panel",
+    "ratio": 14.96,
+    "AA": true
+  },
+  {
+    "theme": "a",
+    "foreground": "muted",
+    "background": "panel",
+    "ratio": 8.6,
+    "AA": true
+  },
+  {
+    "theme": "a",
+    "foreground": "ink",
+    "background": "paper",
+    "ratio": 12.16,
+    "AA": true
+  },
+  {
+    "theme": "a",
+    "foreground": "ink-muted",
+    "background": "paper",
+    "ratio": 5.53,
+    "AA": true
+  },
+  {
+    "theme": "a",
+    "foreground": "button-ink",
+    "background": "button-bg",
+    "ratio": 12.13,
+    "AA": true
+  },
+  {
+    "theme": "a",
+    "foreground": "stamp",
+    "background": "paper",
+    "ratio": 6.15,
+    "AA": true
+  },
+  {
+    "theme": "a",
+    "foreground": "verdict",
+    "background": "bg",
+    "ratio": 8.28,
+    "AA": true
+  },
+  {
+    "theme": "a",
+    "foreground": "seal",
+    "background": "bg",
+    "ratio": 11.55,
+    "AA": true
+  },
+  {
+    "theme": "a",
+    "foreground": "folder-ink",
+    "background": "folder",
+    "ratio": 8.03,
+    "AA": true
+  },
+  {
+    "theme": "a",
+    "foreground": "folder-muted",
+    "background": "folder",
+    "ratio": 6.01,
+    "AA": true
+  },
+  {
+    "theme": "b",
+    "foreground": "text",
+    "background": "bg",
+    "ratio": 16.17,
+    "AA": true
+  },
+  {
+    "theme": "b",
+    "foreground": "muted",
+    "background": "bg",
+    "ratio": 9.98,
+    "AA": true
+  },
+  {
+    "theme": "b",
+    "foreground": "text",
+    "background": "panel",
+    "ratio": 14.37,
+    "AA": true
+  },
+  {
+    "theme": "b",
+    "foreground": "muted",
+    "background": "panel",
+    "ratio": 8.87,
+    "AA": true
+  },
+  {
+    "theme": "b",
+    "foreground": "ink",
+    "background": "paper",
+    "ratio": 11.09,
+    "AA": true
+  },
+  {
+    "theme": "b",
+    "foreground": "ink-muted",
+    "background": "paper",
+    "ratio": 5.37,
+    "AA": true
+  },
+  {
+    "theme": "b",
+    "foreground": "button-ink",
+    "background": "button-bg",
+    "ratio": 9.52,
+    "AA": true
+  },
+  {
+    "theme": "b",
+    "foreground": "stamp",
+    "background": "paper",
+    "ratio": 6.88,
+    "AA": true
+  },
+  {
+    "theme": "b",
+    "foreground": "verdict",
+    "background": "bg",
+    "ratio": 8.95,
+    "AA": true
+  },
+  {
+    "theme": "b",
+    "foreground": "seal",
+    "background": "bg",
+    "ratio": 11.62,
+    "AA": true
+  },
+  {
+    "theme": "b",
+    "foreground": "folder-ink",
+    "background": "folder",
+    "ratio": 8.39,
+    "AA": true
+  },
+  {
+    "theme": "b",
+    "foreground": "folder-muted",
+    "background": "folder",
+    "ratio": 6.55,
+    "AA": true
+  },
+  {
+    "theme": "c",
+    "foreground": "text",
+    "background": "bg",
+    "ratio": 15.77,
+    "AA": true
+  },
+  {
+    "theme": "c",
+    "foreground": "muted",
+    "background": "bg",
+    "ratio": 9.82,
+    "AA": true
+  },
+  {
+    "theme": "c",
+    "foreground": "text",
+    "background": "panel",
+    "ratio": 14.09,
+    "AA": true
+  },
+  {
+    "theme": "c",
+    "foreground": "muted",
+    "background": "panel",
+    "ratio": 8.78,
+    "AA": true
+  },
+  {
+    "theme": "c",
+    "foreground": "ink",
+    "background": "paper",
+    "ratio": 12.41,
+    "AA": true
+  },
+  {
+    "theme": "c",
+    "foreground": "ink-muted",
+    "background": "paper",
+    "ratio": 5.27,
+    "AA": true
+  },
+  {
+    "theme": "c",
+    "foreground": "button-ink",
+    "background": "button-bg",
+    "ratio": 12.53,
+    "AA": true
+  },
+  {
+    "theme": "c",
+    "foreground": "stamp",
+    "background": "paper",
+    "ratio": 6.05,
+    "AA": true
+  },
+  {
+    "theme": "c",
+    "foreground": "verdict",
+    "background": "bg",
+    "ratio": 8.98,
+    "AA": true
+  },
+  {
+    "theme": "c",
+    "foreground": "seal",
+    "background": "bg",
+    "ratio": 11.99,
+    "AA": true
+  },
+  {
+    "theme": "c",
+    "foreground": "folder-ink",
+    "background": "folder",
+    "ratio": 7.86,
+    "AA": true
+  },
+  {
+    "theme": "c",
+    "foreground": "folder-muted",
+    "background": "folder",
+    "ratio": 5.77,
+    "AA": true
+  }
+]

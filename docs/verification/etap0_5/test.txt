@@ -1,0 +1,13 @@
+
+> inspektor-truda@0.1.0 test
+> vitest run
+
+
+ RUN  v4.1.12 C:/Projects/mrot-trainer
+
+
+ Test Files  2 passed (2)
+      Tests  21 passed (21)
+   Start at  20:51:09
+   Duration  176ms (transform 55ms, setup 0ms, import 76ms, tests 27ms, environment 0ms)
+

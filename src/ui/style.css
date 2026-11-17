@@ -222,7 +222,7 @@ fieldset:disabled label { cursor: default; }
 .hint li+li { margin-top: 9px; }
 .hint .method-placeholder { border-top: 1px solid var(--line); padding-top: 12px; font-size: 14px; }
 .method-placeholder span { color: var(--muted); }
-.validation, .storage-warning { font-size: 15px; color: var(--verdict); margin-top: 12px; }
+.validation, .storage-warning { font-size: 15px; color: var(--text); margin-top: 12px; }
 .storage-warning { border: 1px solid var(--accent-line); padding: 12px; margin: 0 0 20px; }
 .stamp { border: 2px solid var(--stamp); color: var(--stamp); padding: 15px 18px; display: inline-flex; gap: 12px; align-items: center; font: 18px var(--font-mono); text-transform: uppercase; transform: rotate(-3deg); }
 .accepted { padding-top: 28px; }
@@ -248,7 +248,7 @@ fieldset:disabled label { cursor: default; }
 .about-document h2 { margin: 10px 0 20px; font-size: 41px; }
 .about-document p { font-size: 17px; line-height: 1.9; }
 .about-document h3 { margin: 28px 0 10px; }
-.todo-note { padding: 15px 18px; border-left: 2px solid var(--stamp); background: var(--paper-tint); margin-top: 20px; color: var(--ink); }
+.todo-note { padding: 15px 18px; border-left: 2px solid var(--accent-line); background: var(--paper-tint); margin-top: 20px; color: var(--ink); }
 .reset-area { display: flex; justify-content: space-between; align-items: center; gap: 22px; max-width: 1000px; margin-top: 35px; }
 .reset-area h2 { font-size: 29px; }
 .reset-area p { font-size: 15px; color: var(--muted); margin-top: 10px; }

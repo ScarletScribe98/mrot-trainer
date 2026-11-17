@@ -27,8 +27,8 @@ async function shot(page: Page, name: string, width: number, focus?: string) {
  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
  const suffix = width === 360 ? '360x740' : '1920x1080';
- await page.screenshot({ path: `docs/screens/${name}-${suffix}.png`, animations: 'disabled' });
- await page.screenshot({ path: `docs/screens/${name}-${suffix}-full.png`, fullPage: true, animations: 'disabled' });
+ await page.screenshot({ path: `${process.env.SCREEN_ROOT || 'docs/screens'}/${name}-${suffix}.png`, animations: 'disabled' });
+ await page.screenshot({ path: `${process.env.SCREEN_ROOT || 'docs/screens'}/${name}-${suffix}-full.png`, fullPage: true, animations: 'disabled' });
 }
 for (const viewport of [{ width: 1920, height: 1080 }, { width: 360, height: 740 }]) {
  test(`Пять карточек, подсказки, сохранение, снимки ${viewport.width}`, async ({ page }) => {

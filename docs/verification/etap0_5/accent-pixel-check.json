@@ -1,0 +1,17 @@
+[
+  {
+    "theme": "Тема Графит: карточка работника",
+    "yellowOchrePercent": 0.523,
+    "wineRedPercent": 0.326
+  },
+  {
+    "theme": "Тема Зелёная лампа: карточка работника",
+    "yellowOchrePercent": 0.676,
+    "wineRedPercent": 0.252
+  },
+  {
+    "theme": "Тема Нуар-редакция: карточка работника",
+    "yellowOchrePercent": 0.688,
+    "wineRedPercent": 0.507
+  }
+]
