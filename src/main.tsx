@@ -12,6 +12,7 @@ import './ui/assets.css';
 import './ui/motion.css';
 import './ui/projector.css';
 import './ui/scene.css';
+import './ui/title.css';
 type Screen = 'title' | 'levels' | 'game' | 'about';
 const screens: Record<Screen, string> = { title: 'Главная', levels: 'Архив дел', game: 'Карточки работников', about: 'Об игре и источники' };
 function readScreen(): Screen { const hash = location.hash.slice(1); return ['title', 'levels', 'game', 'about'].includes(hash) ? hash as Screen : 'title'; }

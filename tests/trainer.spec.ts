@@ -37,9 +37,9 @@ for (const viewport of [{ width: 1920, height: 1080 }, { width: 360, height: 740
   page.on('pageerror', e => errors.push(e.message));
   page.on('request', r => { if (!r.url().startsWith('http://127.0.0.1:4173') && !r.url().startsWith('data:')) external.push(r.url()); });
   await page.goto('/');
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('У каждой цифры');
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Инспектор');
   await shot(page, '01-title', viewport.width);
-  await page.getByRole('button', { name: 'Открыть архив дел', exact: true }).click();
+  await page.getByRole('button', { name: 'Начать дело', exact: true }).click();
   await expect(page.locator('.level-card')).toHaveCount(5);
   await shot(page, '02-levels', viewport.width);
   await page.getByRole('button', { name: 'Открыть дело', exact: true }).click();
@@ -91,7 +91,7 @@ test('PWA: холодное открытие без сети и прохожде
  await expect(page.getByText('Архив доступен без интернета', { exact:true })).toBeVisible();
  await context.setOffline(true);
  await page.reload();
- await page.getByRole('button', { name:'Открыть архив дел', exact:true }).click();
+ await page.getByRole('button', { name:'Начать дело', exact:true }).click();
  await page.getByRole('button', { name:'Открыть дело', exact:true }).click();
  for (let i=0;i<5;i++) { await correct(page); await page.getByRole('button',{name:i===4?'Подвести итоги':'Следующая карточка',exact:true}).click(); }
  expect((await stored(page)).xp).toBe(550);

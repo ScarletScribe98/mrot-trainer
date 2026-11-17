@@ -1,0 +1,62 @@
+/* A staged film title: open folio on the desk, never a UI tile. */
+.main--title .title-layout { grid-template-columns: .92fr 1.08fr; gap: 0; }
+.main--title .title-copy { align-self: center; padding-bottom: 15px; }
+.main--title .title-copy h1 { font-size: clamp(74px,5.8vw,112px); line-height: .94; letter-spacing: -4px; text-shadow: 0 3px 25px #0005; }
+.main--title .title-copy h1 em { color: #d7dfca; }
+.main--title .title-copy>.eyebrow { margin-bottom: 34px; }
+.main--title .title-lead { font: 27px/1.4 var(--font-serif); margin-top: 29px; }
+.main--title .title-description { font-size: 17px; line-height: 1.85; margin: 23px 0 29px; }
+.main--title .title-copy .button { background: #c7d0b6; color: #122418; min-width: 240px; }
+.main--title .title-footnote { margin-top: 42px; }
+.main--title .hero-art { height: 700px; max-width: 860px; perspective: 1400px; margin: 0; }
+.film-case { position: absolute; top: 185px; left: -25px; width: calc(100% + 45px); aspect-ratio: 900/620; transform: rotateX(14deg) rotateZ(-1.5deg); transform-origin: 50% 70%; filter: drop-shadow(8px 28px 20px #0009); }
+.film-case-art { width: 100%; height: 100%; display: block; }
+.folio-cover { position: absolute; inset: 14% 55% 16% 9%; color: #c5d0b7; }
+.folio-cover>.eyebrow { font-size: 14px; letter-spacing: 0; }
+.folio-cover>div { font: 24px/1.2 var(--font-mono); margin-top: 36px; }
+.folio-cover strong { font: 76px/1.2 var(--font-serif); letter-spacing: 3px; font-weight: 400; }
+.folio-cover>p { font: 15px/1.8 var(--font-mono); margin-top: 38px; }
+.folio-page { position: absolute; top: 17%; left: 54%; width: 36%; height: 65%; color: #243128; transform: rotateZ(3deg); }
+.folio-page>.eyebrow { font-size: 14px; letter-spacing: 0; }
+.folio-page h2 { font-size: 37px; margin: 18px 0; }
+.folio-profile { display: flex; gap: 17px; align-items: center; }
+.folio-profile .worker-portrait { flex-basis: 83px; width: 83px; height: 109px; }
+.folio-profile>p { font: 21px/1.25 var(--font-serif); }
+.folio-profile small { display: block; font: 14px/1.5 var(--font-sans); margin-top: 10px; }
+.folio-lines { height: 20px; margin: 18px 0 10px; border-top: 1px solid #839178; border-bottom: 1px solid #abb79c; }
+@media (max-width:1500px) and (min-width:761px) {
+  .main--title .title-copy h1 { font-size: 84px; }
+  .main--title .hero-art { height: 620px; }
+  .film-case { top: 170px; }
+  .folio-page h2 { font-size: 29px; }
+  .folio-cover strong { font-size: 60px; }
+  .folio-cover>div { margin-top: 23px; }
+  .folio-cover>p { margin-top: 23px; }
+  .folio-page>.eyebrow, .folio-cover>.eyebrow { font-size: 11px; }
+  .folio-profile { gap: 10px; }
+  .folio-profile .worker-portrait { flex-basis: 65px; width: 65px; height: 85px; }
+  .folio-profile>p { font-size: 18px; }
+  .folio-profile small { font-size: 11px; }
+}
+@media (max-width:1000px) and (min-width:761px) { .main--title .title-layout { grid-template-columns: 1fr; } .main--title .hero-art { max-width: 680px; } }
+@media (max-width:760px) {
+  .main--title .title-copy h1 { font-size: 62px; letter-spacing: -2px; }
+  .main--title .title-copy>.eyebrow { margin-bottom: 26px; font-size: 11px; }
+  .main--title .title-lead { font-size: 23px; margin-top: 25px; }
+  .main--title .title-description { font-size: 14px; line-height: 1.85; margin: 20px 0 25px; }
+  .main--title .hero-art { height: 335px; width: 100%; max-width: 430px; margin-top: 20px; }
+  .film-case { top: 55px; left: -6px; width: calc(100% + 12px); transform: rotateX(10deg) rotateZ(-1.5deg); }
+  .folio-cover { inset: 14% 55% 16% 9%; }
+  .folio-cover>.eyebrow { font-size: 7px; }
+  .folio-cover>div { font-size: 13px; margin-top: 14px; }
+  .folio-cover strong { font-size: 32px; }
+  .folio-cover>p { font-size: 7px; margin-top: 15px; }
+  .folio-page>.eyebrow { font-size: 7px; }
+  .folio-page h2 { font-size: 19px; margin: 8px 0; }
+  .folio-profile { gap: 7px; }
+  .folio-profile .worker-portrait { flex-basis: 35px; width: 35px; height: 47px; padding: 1px; }
+  .folio-profile>p { font-size: 11px; }
+  .folio-profile small { font-size: 7px; margin-top: 4px; }
+  .folio-lines { height: 8px; margin: 8px 0 5px; }
+  .main--title .main-footer { margin-top: 5px; }
+}
