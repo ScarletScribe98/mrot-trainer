@@ -1,0 +1,33 @@
+/* The scene sits behind the original application grid. Only decorative layers move. */
+.app-shell { position: relative; isolation: isolate; }
+.office-scene { position: fixed; left: 250px; top: 90px; right: 0; bottom: 0; overflow: hidden; pointer-events: none; z-index: 0; background: #08110d; --scene-x: 0px; --scene-y: 0px; }
+.scene-layer { position: absolute; inset: -10px; width: calc(100% + 20px); height: calc(100% + 20px); object-fit: cover; object-position: 50% 50%; }
+.scene-room { opacity: .8; transform: translate3d(calc(var(--scene-x) * -.4), calc(var(--scene-y) * -.4), 0); }
+.scene-desk { transform: translate3d(calc(var(--scene-x) * .3), calc(var(--scene-y) * .3), 0); }
+.scene-lamp, .scene-props { transform: translate3d(var(--scene-x), var(--scene-y), 0); }
+.scene-light { opacity: .88; transform-origin: 83% 21%; animation: office-lamplight 14s ease-in-out infinite alternate; }
+.scene-vignette { position: absolute; inset: 0; background: radial-gradient(ellipse at 66% 48%, transparent 27%, #0208054d 68%, #010503b8 100%), linear-gradient(0deg, #01060455, transparent 30%); }
+.scene-dust { position: absolute; inset: 0; clip-path: polygon(75% 21%, 90% 24%, 100% 93%, 31% 100%); }
+.scene-dust i { position: absolute; width: 2px; height: 2px; border-radius: 50%; background: #d6d1ae; opacity: .15; animation: office-dust var(--duration) ease-in-out var(--delay) infinite alternate; }
+.scene-dust i:nth-child(3n) { width: 1px; height: 1px; }
+.main { background: transparent; z-index: 1; }
+.main::before, .main::after { content: none; }
+.topbar, .sidebar { z-index: 3; }
+.office-scene[data-suspended='true'] .scene-light, .office-scene[data-suspended='true'] .scene-dust i { animation-play-state: paused; }
+.office-scene[data-motion='off'] .scene-layer { transform: none; }
+.office-scene[data-motion='off'] .scene-light, .office-scene[data-motion='off'] .scene-dust i { animation: none; }
+@keyframes office-lamplight { from { opacity: .76; transform: scale(.995); } to { opacity: .94; transform: scale(1.01); } }
+@keyframes office-dust { 0% { opacity: .04; transform: translate3d(-2px, 5px, 0); } 50% { opacity: .32; } 100% { opacity: .08; transform: translate3d(5px, -12px, 0); } }
+@media (max-width:1500px) and (min-width:1001px) { .office-scene { left: 220px; } }
+@media (max-width:1000px) and (min-width:761px) { .office-scene { left: 190px; } }
+@media (max-width:760px) {
+  .office-scene { left: 0; top: 80px; }
+  .scene-layer { object-position: 82% 45%; }
+  .scene-room { opacity: .75; }
+  .scene-vignette { background: linear-gradient(90deg, #02080565, transparent 65%), linear-gradient(0deg, #02080580, transparent 55%); }
+  .scene-dust { clip-path: polygon(70% 15%, 100% 18%, 100% 100%, 5% 100%); }
+}
+@media (prefers-reduced-motion:reduce) {
+  .scene-layer { transform: none !important; }
+  .scene-light, .scene-dust i { animation: none !important; }
+}
