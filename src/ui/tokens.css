@@ -1,2 +1,71 @@
 @font-face{font-family:Source Serif;src:url('/fonts/serif-cyrillic.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap;unicode-range:U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}@font-face{font-family:Source Serif;src:url('/fonts/serif-latin.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap}@font-face{font-family:Golos;src:url('/fonts/sans-cyrillic.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap;unicode-range:U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}@font-face{font-family:Golos;src:url('/fonts/sans-latin.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap}@font-face{font-family:Plex Mono;src:url('/fonts/mono-cyrillic.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap;unicode-range:U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}@font-face{font-family:Plex Mono;src:url('/fonts/mono-latin.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap}
-:root{--bg:#10171b;--panel:#182126;--raised:#253137;--line:#354044;--text:#e9e5db;--muted:#a9b2b2;--brass:#c7a76a;--brass-dark:#a88953;--paper:#eee7d7;--manila:#cdb581;--ink:#252b2a;--ink-muted:#5e625a;--oxblood:#862b2d;--marker:#eee19b;--font-serif:'Source Serif',Georgia,serif;--font-sans:Golos,Arial,sans-serif;--font-mono:'Plex Mono',monospace;--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-6:24px;--space-8:32px;--space-12:48px;--space-16:64px;--shadow-paper:0 20px 60px #0004,0 2px 4px #0004;--shadow-folder:0 25px 65px #0006;--ease:cubic-bezier(.2,.65,.3,1)}
+
+/* Theme A is the neutral default. All surface and ink colors live here. */
+:root,
+:root[data-theme='a'] {
+  --bg: #101316; --panel: #171c20; --raised: #252c31;
+  --line: #394249; --text: #edf0ee; --muted: #b0b9bd;
+  --accent: #c5cdd0; --accent-soft: #b7c4cc16; --accent-line: #65727c;
+  --paper: #e5e8e6; --paper-back: #bac2c2; --paper-line: #adb6b4;
+  --ink: #20282b; --ink-muted: #505d61; --paper-tint: #d3dad6;
+  --folder: #39434a; --folder-top: #505d65; --folder-edge: #657079;
+  --folder-ink: #e1e6e7; --folder-muted: #c0c9cc;
+  --button-bg: #d8dfe0; --button-ink: #172126; --button-hover: #f1f3f1;
+  --stamp: #873c47; --verdict: #df9b9f; --seal: #c7cdca;
+  --marker: #d3dcd5; --metal: #afb9bd; --metal-dark: #4e5a61;
+  --lamp: #b2d0d7; --lamp-opacity: .11; --shade: #303b43;
+  --portrait-paper: #c8d1d1; --portrait-ink: #33434c;
+  --scene-horizon: #3b4750; --grain-opacity: .045;
+  --desk-shine: #d3e3e60c; --desk-shadow: #0000004d;
+  --display-case: none; --display-weight: 400; --display-spacing: -2px;
+  --em-style: italic; --hero-rotation: -5deg;
+}
+:root[data-theme='b'] {
+  --bg: #081511; --panel: #10221b; --raised: #1d3428;
+  --line: #344c3d; --text: #edf0e6; --muted: #b4c1b5;
+  --accent: #bdc9a4; --accent-soft: #bbcca718; --accent-line: #667b60;
+  --paper: #e8e9dd; --paper-back: #b7c0a7; --paper-line: #afb5a4;
+  --ink: #243128; --ink-muted: #53614f; --paper-tint: #d8ddca;
+  --folder: #254537; --folder-top: #395b46; --folder-edge: #64806a;
+  --folder-ink: #e0e8d4; --folder-muted: #c2d0b7;
+  --button-bg: #c2ceb0; --button-ink: #15271d; --button-hover: #e0e7d4;
+  --stamp: #763c40; --verdict: #dfa5a6; --seal: #bed2b5;
+  --marker: #d6dfbb; --metal: #a4a27b; --metal-dark: #565d43;
+  --lamp: #c6d7a4; --lamp-opacity: .22; --shade: #235638;
+  --portrait-paper: #c5d0b8; --portrait-ink: #294334;
+  --scene-horizon: #2e503b; --grain-opacity: .035;
+  --desk-shine: #bdd5a70d; --desk-shadow: #0000005c;
+  --display-case: none; --display-weight: 400; --display-spacing: -1.8px;
+  --em-style: italic; --hero-rotation: -4deg;
+}
+:root[data-theme='c'] {
+  --bg: #151412; --panel: #211f1b; --raised: #312e29;
+  --line: #4b4740; --text: #f1ede5; --muted: #c1bdb4;
+  --accent: #dad3c7; --accent-soft: #e1d9c015; --accent-line: #8c8475;
+  --paper: #e5e2dc; --paper-back: #bbb5aa; --paper-line: #b2ada2;
+  --ink: #24211c; --ink-muted: #615a4f; --paper-tint: #d6d0c4;
+  --folder: #49443c; --folder-top: #5b554a; --folder-edge: #827a6c;
+  --folder-ink: #eee7db; --folder-muted: #d0c7b8;
+  --button-bg: #e5dfd4; --button-ink: #211e19; --button-hover: #faf5ec;
+  --stamp: #932e36; --verdict: #f0a0a0; --seal: #d6d0c4;
+  --marker: #dbd26e; --metal: #b9b0a0; --metal-dark: #696153;
+  --lamp: #e1d1b5; --lamp-opacity: .13; --shade: #51493d;
+  --portrait-paper: #d1c6b4; --portrait-ink: #453b30;
+  --scene-horizon: #5d5448; --grain-opacity: .085;
+  --desk-shine: #e0cfb312; --desk-shadow: #00000061;
+  --display-case: uppercase; --display-weight: 700; --display-spacing: -1.6px;
+  --em-style: normal; --hero-rotation: -2deg;
+}
+:root {
+  --font-serif: 'Source Serif', Georgia, serif;
+  --font-sans: Golos, Arial, sans-serif;
+  --font-mono: 'Plex Mono', monospace;
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+  --space-6: 24px; --space-8: 32px; --space-12: 48px; --space-16: 64px;
+  --brass: var(--accent); --brass-dark: var(--accent-line);
+  --manila: var(--folder); --oxblood: var(--stamp);
+  --shadow-paper: 0 16px 45px var(--desk-shadow), 0 2px 5px var(--desk-shadow);
+  --shadow-folder: 0 30px 70px var(--desk-shadow);
+  --ease: cubic-bezier(.2,.65,.3,1);
+  --radius: 3px;
+}
