@@ -6,7 +6,6 @@ import { effect, setMusic } from './audio';
 import { AudioToggles, Button, Icon, XPPanel } from './ui/components';
 import { Title, Levels, About } from './screens';
 import { Game } from './LevelThree';
-import { applyTheme, readTheme, setThemeUrl, type Theme } from './theme';
 import './ui/tokens.css';
 import './ui/style.css';
 import './ui/assets.css';
@@ -15,11 +14,10 @@ import './ui/projector.css';
 type Screen = 'title' | 'levels' | 'game' | 'about';
 const screens: Record<Screen, string> = { title: 'Главная', levels: 'Архив дел', game: 'Карточки работников', about: 'Об игре и источники' };
 function readScreen(): Screen { const hash = location.hash.slice(1); return ['title', 'levels', 'game', 'about'].includes(hash) ? hash as Screen : 'title'; }
-applyTheme(readTheme());
+// Старые ссылки сохраняют экран и остальные параметры, но больше не выбирают тему.
+const entryUrl = new URL(location.href);
+if (entryUrl.searchParams.has('theme')) { entryUrl.searchParams.delete('theme'); history.replaceState(history.state, '', entryUrl); }
 function App() {
- const [theme, setTheme] = useState<Theme>(readTheme);
- const chooseTheme = (next: Theme) => { setThemeUrl(next); setTheme(next); };
- useEffect(() => { const onPopState = () => { const next = readTheme(); applyTheme(next); setTheme(next); }; window.addEventListener('popstate', onPopState); return () => window.removeEventListener('popstate', onPopState); }, []);
  const [screen, setScreen] = useState<Screen>(readScreen);
  const [progress, setProgress] = useState<Progress>(loadProgress);
  const [storageError, setStorageError] = useState(false);
@@ -42,8 +40,8 @@ function App() {
  {screen === 'title' && <Title onStart={() => navigate('levels')}/>}
  {screen === 'levels' && <Levels progress={progress} onStart={() => navigate('game')}/>}
  {screen === 'game' && <Game key={progress.run.seed} progress={progress} update={setProgress} onBack={() => navigate('levels')} onReplay={replay}/>}
- {screen === 'about' && <About onReset={() => setResetting(true)} theme={theme} onTheme={chooseTheme}/>}
- </div><footer class="main-footer"><span><span class="status-dot"/>{offlineReady ? 'Архив доступен без интернета' : 'Локальный учебный тренажёр'}</span><span>ДЕМОВЕРСИЯ <span class="slash">/</span> ЭТАП 0.5</span></footer></main></div>
+ {screen === 'about' && <About onReset={() => setResetting(true)}/>}
+ </div><footer class="main-footer"><span><span class="status-dot"/>{offlineReady ? 'Архив доступен без интернета' : 'Локальный учебный тренажёр'}</span><span>ДЕМОВЕРСИЯ <span class="slash">/</span> ЭТАП 0.6</span></footer></main></div>
  <div class="mobile-tools"><span>{rank(progress.xp)} · {progress.xp} очков</span><AudioToggles sound={progress.sound} music={progress.music} onSound={toggleSound} onMusic={toggleMusic}/></div>
  {resetting && <div class="modal-backdrop"><section role="dialog" aria-modal="true" aria-labelledby="reset-title" class="reset-dialog" onKeyDown={e => { if (e.key === 'Escape') setResetting(false); if (e.key === 'Tab') { const buttons = e.currentTarget.querySelectorAll('button'); const first = buttons[0], last = buttons[buttons.length - 1]; if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); } else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); } } }}><h2 id="reset-title">Открыть чистое дело?</h2><p>Опыт и результаты проверок будут удалены с этого устройства.</p><Button autoFocus onClick={() => { setMusic(false); setProgress(initialProgress()); setResetting(false); navigate('title'); }}>Начать заново</Button><Button variant="quiet" onClick={() => setResetting(false)}>Отмена</Button></section></div>}
  </div>;
