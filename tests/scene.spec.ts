@@ -1,5 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 const key='inspektor-truda-v1';
+const screenRoot=process.env.SCENE_SCREEN_ROOT || 'work/etap0_6_1-regression-screens';
 async function saved(page:Page){return page.evaluate(key=>JSON.parse(localStorage.getItem(key)!),key);}
 function cents(text:string){return BigInt(text.replace(/[^0-9,]/g,'').replace(',',''));}
 async function correct(page:Page){
@@ -32,8 +33,8 @@ async function capture(page:Page,name:string,width:number,focus?:string){
  await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  const size=width===1920?'1920x1080':'360x740';
- await page.screenshot({path:`docs/screens/etap0_6/${name}-${size}.png`,animations:'disabled'});
- await page.screenshot({path:`docs/screens/etap0_6/${name}-${size}-full.png`,fullPage:true,animations:'disabled'});
+ await page.screenshot({path:`${screenRoot}/${name}-${size}.png`,animations:'disabled'});
+ await page.screenshot({path:`${screenRoot}/${name}-${size}-full.png`,fullPage:true,animations:'disabled'});
  if(width===1920)await projector(page);
 }
 for(const viewport of [{width:1920,height:1080},{width:360,height:740}])test(`Кабинет: пять состояний и прохождение ${viewport.width}`,async({page})=>{
@@ -74,16 +75,18 @@ test('Единственное оформление: старые парамет
   expect(await page.locator('html').evaluate(el=>getComputedStyle(el).getPropertyValue('--bg').trim())).toBe('#081511');
  }
  await expect(page.locator('.portrait-catalog .worker-portrait')).toHaveCount(6);
- const ids=await page.locator('.portrait-catalog use').evaluateAll(nodes=>nodes.map(el=>el.getAttribute('href')));
+ const ids=await page.locator('.portrait-catalog img').evaluateAll(nodes=>nodes.map(el=>el.getAttribute('src')));
  expect(new Set(ids).size).toBe(6);
- await page.locator('.portrait-catalog').screenshot({path:'docs/screens/etap0_6/06-portraits.png'});
+ await page.locator('.portrait-catalog').screenshot({path:`${screenRoot}/06-portraits.png`});
 });
 test('Офлайн: новые слои в кеше, пять карточек и результат после перезапуска',async({page,context})=>{
  await page.goto('/');
  await page.evaluate(async()=>{await navigator.serviceWorker.ready;if(!navigator.serviceWorker.controller)await new Promise<void>(resolve=>navigator.serviceWorker.addEventListener('controllerchange',()=>resolve(),{once:true}));});
  const cache=await page.evaluate(async()=>{const names=await caches.keys();return(await Promise.all(names.map(async name=>(await(await caches.open(name)).keys()).map(r=>new URL(r.url).pathname)))).flat();});
- for(const file of ['scene-room.svg','scene-desk.svg','scene-lamp.svg','scene-light.svg','scene-props.svg','open-case.svg','paper-fibres.svg','archive.svg'])expect(cache).toContain(`/assets/${file}`);
+ for(const file of [...Array.from({length:6},(_,i)=>`portraits/portrait-${i+1}.webp`),'scene-room.svg','scene-desk.svg','scene-lamp.svg','scene-light.svg','scene-props.svg','open-case.svg','paper-fibres.svg','archive.svg'])expect(cache).toContain(`/assets/${file}`);
  await context.setOffline(true);await page.reload();
+ await page.locator('.worker-portrait img').evaluateAll(imgs=>Promise.all(imgs.map(img=>(img as HTMLImageElement).decode())));
+ expect(await page.locator('.worker-portrait img').evaluateAll(imgs=>imgs.every(img=>(img as HTMLImageElement).naturalWidth===320))).toBe(true);
  expect(await page.locator('.office-scene img').evaluateAll(imgs=>imgs.every(img=>(img as HTMLImageElement).complete&&(img as HTMLImageElement).naturalWidth>0))).toBe(true);
  await page.getByRole('button',{name:'Начать дело',exact:true}).click();await page.getByRole('button',{name:'Открыть дело',exact:true}).click();
  for(let i=0;i<5;i++){await correct(page);await page.getByRole('button',{name:i===4?'Подвести итоги':'Следующая карточка',exact:true}).click();}

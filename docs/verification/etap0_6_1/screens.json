@@ -1,0 +1,62 @@
+[
+  {
+    "file": "docs/screens/etap0_6_1/01-title-1920x1080-full.png",
+    "width": 1920,
+    "height": 1080,
+    "bytes": 1173636
+  },
+  {
+    "file": "docs/screens/etap0_6_1/01-title-1920x1080.png",
+    "width": 1920,
+    "height": 1080,
+    "bytes": 1173636
+  },
+  {
+    "file": "docs/screens/etap0_6_1/01-title-360x740-full.png",
+    "width": 360,
+    "height": 1091,
+    "bytes": 251970
+  },
+  {
+    "file": "docs/screens/etap0_6_1/01-title-360x740.png",
+    "width": 360,
+    "height": 740,
+    "bytes": 199304
+  },
+  {
+    "file": "docs/screens/etap0_6_1/02-level3-1920x1080-full.png",
+    "width": 1920,
+    "height": 1229,
+    "bytes": 898347
+  },
+  {
+    "file": "docs/screens/etap0_6_1/02-level3-1920x1080.png",
+    "width": 1920,
+    "height": 1080,
+    "bytes": 871794
+  },
+  {
+    "file": "docs/screens/etap0_6_1/02-level3-360x740-full.png",
+    "width": 360,
+    "height": 2054,
+    "bytes": 322699
+  },
+  {
+    "file": "docs/screens/etap0_6_1/02-level3-360x740.png",
+    "width": 360,
+    "height": 740,
+    "bytes": 187802
+  },
+  {
+    "file": "docs/screens/etap0_6_1/candidates.png",
+    "width": 1584,
+    "height": 804,
+    "bytes": 1550222
+  },
+  {
+    "file": "docs/screens/etap0_6_1/portraits.png",
+    "width": 1584,
+    "height": 414,
+    "bytes": 820962
+  }
+]

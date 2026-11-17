@@ -5,7 +5,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 const chromePath = `${process.env['PROGRAMFILES(X86)']}\\Microsoft\\Edge\\Application\\msedge.exe`;
 const profile = `work/lighthouse-scene-${Date.now()}`;
-const directory='docs/verification/etap0_6';
+const directory='docs/verification/etap0_6_1';
 const scores=[];
 mkdirSync(profile, { recursive:true });
 const server = await preview({ preview: { port:4174, strictPort:true, host:'127.0.0.1' } });

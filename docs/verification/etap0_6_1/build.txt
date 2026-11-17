@@ -1,0 +1,22 @@
+
+> inspektor-truda@0.1.0 build
+> tsc --noEmit && vite build
+
+vite v7.3.8 building client environment for production...
+transforming...
+✓ 23 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/registerSW.js               0.14 kB
+dist/manifest.webmanifest        0.53 kB
+dist/index.html                  0.87 kB │ gzip:  0.55 kB
+dist/assets/index-C3ghksy_.css  49.01 kB │ gzip: 11.00 kB
+dist/assets/index-DVs_L5bK.js   49.53 kB │ gzip: 18.05 kB
+✓ built in 196ms
+
+PWA v1.3.0
+mode      generateSW
+precache  32 entries (441.19 KiB)
+files generated
+  dist/sw.js
+  dist/workbox-9c191d2f.js

@@ -1,0 +1,27 @@
+
+> inspektor-truda@0.1.0 test:browser
+> playwright test
+
+[WebServer] (node:38224) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 14 tests using 1 worker
+
+(node:41072) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 tests\portraits.spec.ts:4:2 › Растровая серия: титул и карточка 1920 (2.1s)
+  ok  2 tests\portraits.spec.ts:4:2 › Растровая серия: титул и карточка 360 (530ms)
+  ok  3 tests\portraits.spec.ts:26:1 › Шесть WebP-портретов: декодирование, разрешение 2x и офлайн-каталог (381ms)
+  ok  4 tests\scene.spec.ts:40:73 › Кабинет: пять состояний и прохождение 1920 (3.9s)
+  ok  5 tests\scene.spec.ts:40:73 › Кабинет: пять состояний и прохождение 360 (2.3s)
+  ok  6 tests\scene.spec.ts:68:1 › Единственное оформление: старые параметры не выбирают темы (426ms)
+  ok  7 tests\scene.spec.ts:82:1 › Офлайн: новые слои в кеше, пять карточек и результат после перезапуска (1.1s)
+  ok  8 tests\scene.spec.ts:95:1 › Движение: максимум 6,81 px, документы неподвижны; reduced-motion статичен (676ms)
+  ok  9 tests\trainer.spec.ts:34:2 › Пять карточек, подсказки, сохранение, снимки 1920 (5.1s)
+  ok 10 tests\trainer.spec.ts:34:2 › Пять карточек, подсказки, сохранение, снимки 360 (2.6s)
+  ok 11 tests\trainer.spec.ts:76:1 › Чистое прохождение: 550 опыта, звук, музыка и сброс (1.2s)
+  ok 12 tests\trainer.spec.ts:88:1 › PWA: холодное открытие без сети и прохождение пяти карточек (1.2s)
+  ok 13 tests\trainer.spec.ts:100:1 › Повреждённое и недоступное хранилище (333ms)
+  ok 14 tests\trainer.spec.ts:109:1 › Ввод не округляет ответ молча; самостоятельное исправление даёт 70 (437ms)
+
+  14 passed (24.3s)
