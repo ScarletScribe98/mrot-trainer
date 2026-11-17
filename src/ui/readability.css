@@ -40,7 +40,9 @@
   .inspection-panel .button { padding-inline: 13px; font-size: 13px; }
   .reward-note { font-size: 10px; }
   .hint { padding: 15px 13px; }
-  .title-copy::before { inset: -20px -20px -18px; background: linear-gradient(90deg, #030c08e8 0%, #030c08d9 60%, #030c0888); }
+  .title-copy::before { inset: -20px -18px -18px; background: linear-gradient(90deg, #030c08e8 0%, #030c08d9 60%, #030c0888); }
   .document-caption { font-size: 10px; }
   .main-footer { font-size: 11px; }
 }
+
+.hint .ruble { font-size: 1em; }

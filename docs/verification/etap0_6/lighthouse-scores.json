@@ -1,0 +1,20 @@
+[
+  {
+    "screen": "title",
+    "performance": 99,
+    "accessibility": 100,
+    "failed": []
+  },
+  {
+    "screen": "levels",
+    "performance": 99,
+    "accessibility": 100,
+    "failed": []
+  },
+  {
+    "screen": "level3",
+    "performance": 99,
+    "accessibility": 100,
+    "failed": []
+  }
+]

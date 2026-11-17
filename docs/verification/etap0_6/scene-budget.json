@@ -1,0 +1,84 @@
+{
+  "files": [
+    {
+      "path": "public/assets/archive.svg",
+      "bytes": 50483,
+      "gzipBytes": 7513
+    },
+    {
+      "path": "public/assets/grain.svg",
+      "bytes": 9931,
+      "gzipBytes": 1036
+    },
+    {
+      "path": "public/assets/open-case.svg",
+      "bytes": 1635,
+      "gzipBytes": 651
+    },
+    {
+      "path": "public/assets/paper-fibres.svg",
+      "bytes": 24869,
+      "gzipBytes": 1830
+    },
+    {
+      "path": "public/assets/portrait-1.svg",
+      "bytes": 6366,
+      "gzipBytes": 1737
+    },
+    {
+      "path": "public/assets/portrait-2.svg",
+      "bytes": 6353,
+      "gzipBytes": 1748
+    },
+    {
+      "path": "public/assets/portrait-3.svg",
+      "bytes": 6485,
+      "gzipBytes": 1754
+    },
+    {
+      "path": "public/assets/portrait-4.svg",
+      "bytes": 6388,
+      "gzipBytes": 1740
+    },
+    {
+      "path": "public/assets/portrait-5.svg",
+      "bytes": 6406,
+      "gzipBytes": 1724
+    },
+    {
+      "path": "public/assets/portrait-6.svg",
+      "bytes": 6415,
+      "gzipBytes": 1775
+    },
+    {
+      "path": "public/assets/scene-desk.svg",
+      "bytes": 7173,
+      "gzipBytes": 1200
+    },
+    {
+      "path": "public/assets/scene-lamp.svg",
+      "bytes": 4387,
+      "gzipBytes": 1155
+    },
+    {
+      "path": "public/assets/scene-light.svg",
+      "bytes": 857,
+      "gzipBytes": 434
+    },
+    {
+      "path": "public/assets/scene-props.svg",
+      "bytes": 2091,
+      "gzipBytes": 794
+    },
+    {
+      "path": "public/assets/scene-room.svg",
+      "bytes": 25003,
+      "gzipBytes": 2599
+    }
+  ],
+  "frontendBytes": 116402,
+  "rawBytes": 164842,
+  "gzipBytes": 27690,
+  "budgetBytes": 400000,
+  "conservativeTotalBytes": 281244
+}

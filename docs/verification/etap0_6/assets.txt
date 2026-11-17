@@ -1,0 +1,3 @@
+All scene/portrait SVG assets, including standalone duplicates: 164842 bytes (161.0 KiB), gzip 27.0 KiB; limit 400000 bytes
+SVG plus all compiled app/service-worker JS and CSS: 281244 bytes (274.7 KiB)
+All scene assets are present in the generated PWA precache

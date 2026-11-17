@@ -1,0 +1,24 @@
+
+> inspektor-truda@0.1.0 test:browser
+> playwright test
+
+[WebServer] (node:33740) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 11 tests using 1 worker
+
+(node:37832) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 tests\scene.spec.ts:39:73 › Кабинет: пять состояний и прохождение 1920 (4.7s)
+  ok  2 tests\scene.spec.ts:39:73 › Кабинет: пять состояний и прохождение 360 (2.6s)
+  ok  3 tests\scene.spec.ts:67:1 › Единственное оформление: старые параметры не выбирают темы (515ms)
+  ok  4 tests\scene.spec.ts:81:1 › Офлайн: новые слои в кеше, пять карточек и результат после перезапуска (1.3s)
+  ok  5 tests\scene.spec.ts:92:1 › Движение: максимум 6,81 px, документы неподвижны; reduced-motion статичен (653ms)
+  ok  6 tests\trainer.spec.ts:34:2 › Пять карточек, подсказки, сохранение, снимки 1920 (5.0s)
+  ok  7 tests\trainer.spec.ts:34:2 › Пять карточек, подсказки, сохранение, снимки 360 (3.1s)
+  ok  8 tests\trainer.spec.ts:76:1 › Чистое прохождение: 550 опыта, звук, музыка и сброс (1.3s)
+  ok  9 tests\trainer.spec.ts:88:1 › PWA: холодное открытие без сети и прохождение пяти карточек (1.3s)
+  ok 10 tests\trainer.spec.ts:100:1 › Повреждённое и недоступное хранилище (363ms)
+  ok 11 tests\trainer.spec.ts:109:1 › Ввод не округляет ответ молча; самостоятельное исправление даёт 70 (457ms)
+
+  11 passed (23.3s)

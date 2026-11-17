@@ -1,0 +1,72 @@
+[
+  {
+    "foreground": "text",
+    "background": "bg",
+    "ratio": 16.17
+  },
+  {
+    "foreground": "muted",
+    "background": "bg",
+    "ratio": 9.98
+  },
+  {
+    "foreground": "text",
+    "background": "panel",
+    "ratio": 14.37
+  },
+  {
+    "foreground": "muted",
+    "background": "panel",
+    "ratio": 8.87
+  },
+  {
+    "foreground": "ink",
+    "background": "paper",
+    "ratio": 11.09
+  },
+  {
+    "foreground": "ink-muted",
+    "background": "paper",
+    "ratio": 5.37
+  },
+  {
+    "foreground": "button-ink",
+    "background": "button-bg",
+    "ratio": 9.52
+  },
+  {
+    "foreground": "stamp",
+    "background": "paper",
+    "ratio": 6.88
+  },
+  {
+    "foreground": "verdict",
+    "background": "bg",
+    "ratio": 8.95
+  },
+  {
+    "foreground": "seal",
+    "background": "bg",
+    "ratio": 11.62
+  },
+  {
+    "foreground": "folder-ink",
+    "background": "folder",
+    "ratio": 8.39
+  },
+  {
+    "foreground": "folder-muted",
+    "background": "folder",
+    "ratio": 6.55
+  },
+  {
+    "foreground": "panel body #bdc9b9",
+    "background": "dense panel over white",
+    "ratio": 9.51
+  },
+  {
+    "foreground": "formula text #becab8",
+    "background": "#22372b",
+    "ratio": 7.48
+  }
+]
