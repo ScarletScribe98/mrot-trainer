@@ -1,3 +1,4 @@
+import { Asset } from './ui/artwork';
 import { render } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { initialProgress, loadProgress, newRun, rank, STORAGE_KEY, type Progress } from './game';
@@ -8,6 +9,7 @@ import { Game } from './LevelThree';
 import { applyTheme, readTheme, setThemeUrl, type Theme } from './theme';
 import './ui/tokens.css';
 import './ui/style.css';
+import './ui/assets.css';
 type Screen = 'title' | 'levels' | 'game' | 'about';
 const screens: Record<Screen, string> = { title: 'Главная', levels: 'Архив дел', game: 'Карточки работников', about: 'Об игре и источники' };
 function readScreen(): Screen { const hash = location.hash.slice(1); return ['title', 'levels', 'game', 'about'].includes(hash) ? hash as Screen : 'title'; }
@@ -33,7 +35,7 @@ function App() {
  const toggleMusic = () => { setMusic(!progress.music); setProgress(p => ({ ...p, music: !p.music })); };
  return <div class="app-shell"><a class="skip-link" href="#main">К содержимому</a><header class="topbar"><button class="brand" onClick={() => navigate('title')} aria-label="Инспектор труда. Дело о минимальной зарплате — на главную"><span class="brand-mark"><Icon name="archive" size={30}/></span><span>Инспектор труда<small>Дело о минимальной зарплате</small></span></button><div class="header-center"><span class="status-dot"/>Учебный архив <span class="slash">/</span> Дело № 003</div><button class="about-link" onClick={() => navigate('about')}><Icon name="info" size={20}/><span>Об игре</span></button></header>
  <div class="body-layout"><aside class="sidebar"><div class="sidebar-label eyebrow">Рабочий стол</div><nav aria-label="Основная навигация"><button aria-current={screen === 'title' ? 'page' : undefined} onClick={() => navigate('title')}><span class="nav-index">01</span>Вводная<Icon name="arrow" size={16}/></button><button aria-current={screen === 'levels' || screen === 'game' ? 'page' : undefined} onClick={() => navigate('levels')}><span class="nav-index">02</span>Архив дел<Icon name="arrow" size={16}/></button><button aria-current={screen === 'about' ? 'page' : undefined} onClick={() => navigate('about')}><span class="nav-index">03</span>Об игре<Icon name="arrow" size={16}/></button></nav><div class="sidebar-note"><span class="tiny-line"/><p>Точность —<br/>дело принципа.</p><small>Проверьте цифры.<br/>Защитите право на оплату.</small></div><div class="sidebar-bottom"><XPPanel xp={progress.xp}/><AudioToggles sound={progress.sound} music={progress.music} onSound={toggleSound} onMusic={toggleMusic}/></div></aside>
- <main id="main" ref={headingRef} tabIndex={-1} class={`main main--${screen}`}><div key={screen} class="screen">
+ <main id="main" ref={headingRef} tabIndex={-1} class={`main main--${screen}`}><Asset name="desk" class="workspace-backdrop" stretch/><div key={screen} class="screen">
  {storageError && <p class="storage-warning" role="alert">Хранилище браузера недоступно. В этой сессии можно играть, но прогресс не сохранится.</p>}
  {screen === 'title' && <Title onStart={() => navigate('levels')}/>}
  {screen === 'levels' && <Levels progress={progress} onStart={() => navigate('game')}/>}

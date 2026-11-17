@@ -1,0 +1,82 @@
+/* Original SVG artwork inherits the same semantic colors as the live document. */
+.asset { display: block; width: 100%; height: 100%; pointer-events: none; }
+.workspace-backdrop { position: absolute; inset: 0; z-index: -1; width: 100%; height: 100%; opacity: .6; }
+.main::after { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; background-image: url('/assets/grain.svg'); opacity: var(--grain-opacity); }
+.document::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; background-image: url('/assets/grain.svg'); opacity: .1; }
+.worker-portrait { flex: 0 0 108px; width: 108px; height: 140px; padding: 3px; border: 1px solid var(--paper-line); background: var(--portrait-paper); color: var(--portrait-ink); box-shadow: 3px 4px 0 var(--paper-tint); }
+.worker-portrait .asset { object-fit: cover; }
+.portrait-catalog { display: grid; grid-template-columns: repeat(6,1fr); gap: 14px; margin-top: 20px; }
+.portrait-catalog .worker-portrait { width: 100%; height: auto; aspect-ratio: 160/210; }
+.folder-skin { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .5; color: var(--folder-ink); }
+.folder-tab { z-index: 1; }
+.document-paperclip { position: absolute; top: -24px; right: 30px; width: 22px; height: 83px; z-index: 2; transform: rotate(8deg); }
+.document-top>span:last-child { padding-right: 20px; }
+.level-file-icon { width: 76px; height: 66px; margin: 16px 0; }
+.level-art { width: 76px; height: 66px; }
+.hero-art { overflow: visible; }
+.hero-lamp { position: absolute; width: 210px; height: 294px; top: 10px; right: -30px; opacity: .9; z-index: -1; transform: rotate(-9deg); }
+.hero-light { position: absolute; inset: 40px -60px 40px -80px; background: radial-gradient(ellipse at 80% 12%, var(--lamp), transparent 63%); opacity: var(--lamp-opacity); z-index: -2; pointer-events: none; }
+.hero-loose-form { position: absolute; top: 95px; left: 13%; width: 75%; height: 460px; transform: rotate(10deg); filter: drop-shadow(0 15px 15px var(--desk-shadow)); }
+.hero-sheet-back { display: none; }
+.hero-sheet { right: 10%; top: 115px; transform: rotate(1.5deg); }
+.hero-sheet .eyebrow { font-size: 14px; }
+.hero-sheet-name { max-width: 66%; }
+.hero-sheet-lines { margin-top: 35px; }
+.hero-portrait { position: absolute; right: 27px; top: 77px; width: 106px; height: 138px; }
+.hero-id-card { position: absolute; top: 230px; left: -35px; width: 270px; height: 187px; color: var(--portrait-ink); transform: rotate(-12deg); filter: drop-shadow(0 10px 15px var(--desk-shadow)); }
+.hero-folder { background: transparent; border: 0; box-shadow: none; top: 330px; bottom: 20px; }
+.hero-folder-skin { position: absolute; inset: -36px 0 0; width: 100%; height: calc(100% + 36px); filter: drop-shadow(0 22px 20px var(--desk-shadow)); color: var(--folder-ink); }
+.hero-folder-tab { background: transparent; border: 0; bottom: calc(100% - 1px); padding-left: 25px; font-size: 14px; }
+.hero-folder-inner { position: relative; padding: 25px 32px 24px 42px; }
+.hero-case-number { margin-top: 12px; }
+.hero-folder-bottom { margin-top: 18px; }
+.hero-paperclip { position: absolute; top: 90px; right: 24%; width: 25px; height: 93px; transform: rotate(13deg); }
+.hero-caption { bottom: -24px; }
+.stamp { position: relative; border: 0; padding: 22px 24px 22px 59px; min-height: 78px; background: var(--paper); isolation: isolate; }
+.stamp-ink { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; }
+.stamp>span { position: relative; }
+.verdict-seal { width: fit-content; max-width: 100%; position: relative; padding: 13px 20px 13px 42px; font: 16px var(--font-mono); color: var(--seal); margin: 20px 0 12px; text-transform: uppercase; }
+.verdict-seal .asset { position: absolute; inset: 0; width: 100%; height: 100%; }
+.verdict-seal--violation { color: var(--verdict); }
+@media (max-width:1500px) and (min-width:761px) {
+  .hero-portrait { width: 85px; height: 112px; right: 23px; }
+  .hero-sheet .eyebrow { font-size: 12px; }
+  .hero-sheet-name { font-size: 27px; }
+  .hero-sheet-lines { font-size: 12px; margin-top: 25px; }
+  .hero-folder { top: 290px; bottom: 15px; }
+  .hero-folder-inner { padding: 20px 25px 20px 35px; }
+  .hero-folder-tab { font-size: 12px; }
+  .hero-folder-inner>.eyebrow { font-size: 12px; }
+  .hero-id-card { width: 230px; height: 159px; top: 245px; left: -15px; }
+  .hero-lamp { width: 170px; height: 238px; }
+  .hero-loose-form { height: 400px; }
+  .worker-portrait { flex-basis: 95px; width: 95px; height: 124px; }
+}
+@media (max-width:760px) {
+  .worker-portrait { flex-basis: 76px; width: 76px; height: 100px; }
+  .portrait-catalog { grid-template-columns: repeat(3,1fr); gap: 12px; }
+  .document-paperclip { width: 17px; height: 64px; top: -20px; right: 15px; }
+  .document-top>span:last-child { padding-right: 14px; }
+  .hero-lamp { width: 125px; height: 175px; right: -6px; top: 12px; }
+  .hero-loose-form { top: 70px; height: 280px; left: 14%; width: 76%; }
+  .hero-sheet { top: 85px; right: 10%; padding: 14px; }
+  .hero-sheet .eyebrow { font-size: 9px; }
+  .hero-sheet-name { font-size: 21px; max-width: 65%; }
+  .hero-portrait { width: 59px; height: 77px; right: 13px; top: 63px; }
+  .hero-sheet-lines { font-size: 9px; margin-top: 24px; grid-template-columns: 65px 1fr; }
+  .hero-folder { top: 210px; bottom: 2px; }
+  .hero-folder-inner { padding: 15px 18px 15px 23px; }
+  .hero-folder-tab { font-size: 9px; padding-left: 16px; height: 24px; }
+  .hero-folder-skin { inset: -27px 0 0; height: calc(100% + 27px); }
+  .hero-folder-inner>.eyebrow { font-size: 8px; }
+  .hero-folder p { font-size: 20px; }
+  .hero-folder-bottom { margin-top: 14px; font-size: 8px; }
+  .hero-paperclip { width: 17px; height: 64px; top: 68px; right: 24%; }
+  .hero-id-card { width: 150px; height: 104px; top: 165px; left: -7px; }
+  .hero-caption { bottom: -33px; font-size: 9px; }
+  .main--title .main-footer { margin-top: 50px; }
+  .hero-light { inset: 25px -10px 20px -10px; }
+  .stamp { padding: 20px 16px 20px 43px; min-height: 68px; }
+  .accepted .stamp { padding-left: 43px; font-size: 12px; }
+  .verdict-seal { font-size: 13px; }
+}
