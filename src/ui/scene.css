@@ -1,6 +1,6 @@
 /* The scene sits behind the original application grid. Only decorative layers move. */
 .app-shell { position: relative; isolation: isolate; }
-.office-scene { position: fixed; left: 250px; top: 90px; right: 0; bottom: 0; overflow: hidden; pointer-events: none; z-index: 0; background: #08110d; --scene-x: 0px; --scene-y: 0px; }
+.office-scene { position: fixed; left: 250px; top: 90px; right: 0; bottom: 0; overflow: hidden; pointer-events: none; z-index: 0; contain: layout paint style; background: #08110d; --scene-x: 0px; --scene-y: 0px; }
 .scene-layer { position: absolute; inset: -10px; width: calc(100% + 20px); height: calc(100% + 20px); object-fit: cover; object-position: 50% 50%; }
 .scene-room { opacity: .8; transform: translate3d(calc(var(--scene-x) * -.4), calc(var(--scene-y) * -.4), 0); }
 .scene-desk { transform: translate3d(calc(var(--scene-x) * .3), calc(var(--scene-y) * .3), 0); }
