@@ -19,6 +19,7 @@
   --desk-shine: #d3e3e60c; --desk-shadow: #0000004d;
   --display-case: none; --display-weight: 400; --display-spacing: -2px;
   --em-style: italic; --hero-rotation: -5deg;
+  --hero-title-size: 79px; --game-title-size: 49px; --name-weight: 400; --rule-weight: 1px;
 }
 :root[data-theme='b'] {
   --bg: #081511; --panel: #10221b; --raised: #1d3428;
@@ -37,6 +38,7 @@
   --desk-shine: #bdd5a70d; --desk-shadow: #0000005c;
   --display-case: none; --display-weight: 400; --display-spacing: -1.8px;
   --em-style: italic; --hero-rotation: -4deg;
+  --hero-title-size: 77px; --game-title-size: 50px; --name-weight: 400; --rule-weight: 1px;
 }
 :root[data-theme='c'] {
   --bg: #151412; --panel: #211f1b; --raised: #312e29;
@@ -55,6 +57,7 @@
   --desk-shine: #e0cfb312; --desk-shadow: #00000061;
   --display-case: uppercase; --display-weight: 700; --display-spacing: -1.6px;
   --em-style: normal; --hero-rotation: -2deg;
+  --hero-title-size: 71px; --game-title-size: 48px; --name-weight: 700; --rule-weight: 2px;
 }
 :root {
   --font-serif: 'Source Serif', Georgia, serif;

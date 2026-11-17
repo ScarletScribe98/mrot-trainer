@@ -1,0 +1,23 @@
+/* Projector typography: measured at 1920×1080. No microscopic catalogue labels. */
+.worker-heading h2 { font-weight: var(--name-weight); }
+.panel-header { border-bottom-width: var(--rule-weight); }
+@media (min-width: 1600px) {
+  .title-copy h1 { font-size: var(--hero-title-size); }
+  .game-heading h1 { font-size: var(--game-title-size); }
+  .eyebrow, .document-top, .folder-tab, .document-section-title,
+  .document-bottom, .document-caption, .main-footer, .reward-note,
+  .hero-catalog, .hero-caption, .hero-folder-tab, .hero-folder-inner>.eyebrow,
+  .hero-folder-bottom, .outline-stamp { font-size: 14px; }
+  .data-table dt, .region-line, .panel-intro, legend { font-size: 16px; }
+  .data-table dd { font-size: 25px; }
+  .salary-row strong { font-size: 31px; }
+  .formula strong { font-size: 35px; }
+  .document { padding: 22px 27px; }
+  .worker-heading { margin: 18px 0; }
+  .worker-portrait { flex-basis: 100px; width: 100px; height: 130px; }
+  .data-table>div { min-height: 47px; }
+  .document-section-title { margin-top: 19px; }
+  .document-bottom { margin-top: 16px; }
+  .salary-row { padding: 13px; margin-top: 17px; }
+  .document-paperclip { right: 32px; }
+}
