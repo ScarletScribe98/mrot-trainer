@@ -80,3 +80,6 @@
   .accepted .stamp { padding-left: 43px; font-size: 12px; }
   .verdict-seal { font-size: 13px; }
 }
+
+.accepted .accepted-intro { margin: 0 0 22px; color: var(--muted); }
+.inspection-panel fieldset[hidden] { display: none; }
