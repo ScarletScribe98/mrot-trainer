@@ -19,7 +19,13 @@ interface FinalRun {
  issues: FinalCell[];
  act: InspectionAct | null;
 }
-export interface RegionalAttempt { step: number; attempts: number; wrong: boolean; }
+export interface RegionalAttempt {
+ step: number;
+ attempts: number;
+ wrong: boolean;
+ stepAttempts?: number;
+ hint?: boolean;
+}
 interface Study {
  history: { turn: number; attempts: number; accepted: boolean };
  map: { seed: number; cases: RegionalAttempt[] };
@@ -82,6 +88,10 @@ function gradeCard<T extends CardState>(run: Run, state: T, correct: boolean) {
 export function attemptReward({ hint, attempts }: Pick<CardState, 'hint' | 'attempts'>): number {
  return hint || attempts >= 2 ? 50 : attempts > 0 ? 70 : 100;
 }
+export function rewardLabel(reward: number): string {
+ const reason = reward === 50 ? 'с подсказкой' : reward === 70 ? 'со второй попытки' : 'с первой попытки';
+ return `+${reward} XP (${reason})`;
+}
 const nextStep = { row: 'explanation', explanation: 'correction', correction: 'correction' } as const;
 
 export function submitAudit(progress: Progress, sheet: AuditSheet, answer: AuditAnswer): { progress: Progress; correct: boolean } {
@@ -136,10 +146,27 @@ export function nextHistory(p: Progress): Progress {
  return state.turn === historyPairs.length ? finishLevel(updated, 1) : updated;
 }
 
+export function regionalStepAttempts(state: RegionalAttempt): number {
+ return state.stepAttempts ?? (state.wrong ? state.attempts : 0);
+}
+
+export function countRegionalCases(map: Study['map'], assigned = drawRegions(map.seed)): number {
+ return assigned.filter(id => map.cases[id - 1].step === 3).length;
+}
+
 export function gradeRegionalAttempt(state: RegionalAttempt, correct: boolean): RegionalAttempt {
  if (state.step >= 3) return state;
- return correct ? { ...state, step: state.step + 1, wrong: false }
-  : { ...state, attempts: state.attempts + 1, wrong: true };
+ return correct ? { ...state, step: state.step + 1, wrong: false, stepAttempts: 0 }
+  : { ...state, attempts: state.attempts + 1, wrong: true, stepAttempts: regionalStepAttempts(state) + 1 };
+}
+
+export function requestRegionalKey(p: Progress, id: number, step: number): Progress {
+ const { map } = p.study;
+ const state = map.cases[id - 1];
+ if (p.completed.includes(2) || !state || state.hint || state.step !== step ||
+  regionalStepAttempts(state) < 2 || !drawRegions(map.seed).includes(id)) return p;
+ const cases = map.cases.map((item, i) => i === id - 1 ? { ...state, hint: true } : item);
+ return { ...p, study: { ...p.study, map: { ...map, cases } } };
 }
 
 export function submitRegional(p: Progress, id: number, correct: boolean): Progress {
@@ -148,9 +175,9 @@ export function submitRegional(p: Progress, id: number, correct: boolean): Progr
  if (!assigned.includes(id) || map.cases[id - 1].step >= 3) return p;
  const next = gradeRegionalAttempt(map.cases[id - 1], correct);
  const cases = map.cases.map((state, i) => i === id - 1 ? next : state);
- const xp = next.step === 3 ? attemptReward({ attempts: next.attempts, hint: false }) : 0;
+ const xp = next.step === 3 ? attemptReward({ attempts: next.attempts, hint: next.hint ?? false }) : 0;
  const updated = { ...p, xp: p.xp + xp, study: { ...p.study, map: { ...map, cases } } };
- return assigned.every(caseId => cases[caseId - 1].step === 3) ? finishLevel(updated, 2) : updated;
+ return countRegionalCases(updated.study.map, assigned) === assigned.length ? finishLevel(updated, 2) : updated;
 }
 
 export function canOpenFinal(progress: Progress) {
@@ -212,7 +239,9 @@ function validateStudy(study: Study): boolean {
  return !!history && integer(history.turn, historyPairs.length + 1) && integer(history.attempts) &&
   typeof history.accepted === 'boolean' &&
   !!map && integer(map.seed, 4294967295) && Array.isArray(map.cases) && map.cases.length === regionCases.length &&
-  map.cases.every(state => state && integer(state.step, 3) && integer(state.attempts) && typeof state.wrong === 'boolean');
+  map.cases.every(state => state && integer(state.step, 3) && integer(state.attempts) && typeof state.wrong === 'boolean' &&
+   (state.stepAttempts === undefined || integer(state.stepAttempts, state.attempts)) &&
+   (state.hint === undefined || typeof state.hint === 'boolean'));
 }
 
 export function validateProgress(value: unknown): value is SavedProgress {

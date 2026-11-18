@@ -1,6 +1,7 @@
 import { Asset } from './artwork';
 import type { ComponentChildren, JSX } from 'preact';
-import { formatAmount } from '../calc';
+import { decimal, formatAmount } from '../calc';
+import { formatAllowance } from '../calc/final';
 import { paymentLabels, type Payment } from '../calc/payroll';
 import { rank, nextRank } from '../game';
 export function Icon({ name, size = 22 }: { name: 'archive' | 'arrow' | 'check' | 'sound' | 'music' | 'lock' | 'info'; size?: number }) {
@@ -38,7 +39,10 @@ export function PaymentLines({ payments, classified = true }: { payments: readon
     <dd><Money cents={item.cents}/></dd>
   </div>)}</dl>;
 }
+export function allowanceLabel(value: string): string {
+  return decimal(value)[0] === 0n ? 'нет (0)' : formatAllowance(value);
+}
 export function AmountInput({ value, onChange, disabled, invalid }: { value: string; onChange: (v: string) => void; disabled: boolean; invalid: boolean }) { return <div class="amount-control"><input id="underpayment" inputMode="decimal" autoComplete="off" maxLength={32} placeholder="0,00" value={value} disabled={disabled} aria-invalid={invalid || undefined} aria-describedby="amount-help" onInput={e => { const raw = e.currentTarget.value.replace(/[ \u00a0\u202f]/g, ''); if (!/^\d*(?:[.,]\d*)?$/.test(raw)) { onChange(e.currentTarget.value); return; } const [whole, fraction] = raw.split(/[.,]/); onChange(whole.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + (fraction !== undefined ? ',' + fraction : '')); }}/><span aria-hidden="true">₽</span></div>; }
-export function XPPanel({ xp }: { xp: number }) { const target = nextRank(xp); return <section class="xp-panel" aria-label="Опыт и звание"><div class="eyebrow">Личное дело инспектора</div><div class="rank">{rank(xp)}</div><div class="xp-value"><span>{xp.toLocaleString('ru-RU')} <small>очков опыта</small></span><span aria-hidden="true">✧</span></div><progress max={target} value={Math.min(xp, target)} aria-label="Опыт до следующего звания"/><p>{xp >= 1500 ? 'Высшее звание достигнуто' : `До следующего звания: ${target - xp} очков`}</p></section>; }
+export function XPPanel({ xp }: { xp: number }) { const target = nextRank(xp); return <section class="xp-panel" aria-label="Опыт и звание"><div class="eyebrow">Личное дело инспектора</div><div class="rank">{rank(xp)}</div><div class="xp-value"><span>{xp.toLocaleString('ru-RU')} XP</span><span aria-hidden="true">✧</span></div><progress max={target} value={Math.min(xp, target)} aria-label="Опыт до следующего звания"/><p>{xp >= 1500 ? 'Высшее звание достигнуто' : `До следующего звания: ${target - xp} очков`}</p></section>; }
 export function AudioToggles({ sound, music, onSound, onMusic }: { sound: boolean; music: boolean; onSound: () => void; onMusic: () => void }) { return <div class="audio-toggles"><button aria-pressed={sound} onClick={onSound} aria-label={`Звуки: ${sound ? 'включены' : 'выключены'}`}><Icon name="sound" size={18}/><span>Звуки</span><i>{sound ? 'Вкл' : 'Выкл'}</i></button><button aria-pressed={music} onClick={onMusic} aria-label={`Музыка: ${music ? 'включена' : 'выключена'}`}><Icon name="music" size={18}/><span>Музыка</span><i>{music ? 'Вкл' : 'Выкл'}</i></button></div>; }
 export function Money({ cents }: { cents: number }) { return <span class="money">{formatAmount(cents)} <span class="ruble">₽</span></span>; }

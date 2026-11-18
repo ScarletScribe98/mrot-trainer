@@ -1,26 +1,26 @@
 import { useState } from 'preact/hooks';
 import { formatAmount } from './calc';
-import { formatAllowance } from './calc/final';
 import { baseLabels, type BaseSource } from './calc/payroll';
 import { assessRegion, checkBasis, checkMinimum, checkTopup, drawRegions, federal, reasonLabels, regionCases, REGION_COUNT,
   type RegionCase } from './data/real/study';
-import { attemptReward, gradeRegionalAttempt, newRegionalAttempt, submitRegional, type Progress, type RegionalAttempt } from './game';
-import { Button, Document, Folder, Hint, Icon, MethodNote, Money, PaymentLines, Stamp } from './ui/components';
+import { attemptReward, countRegionalCases, gradeRegionalAttempt, newRegionalAttempt, regionalStepAttempts, requestRegionalKey,
+  rewardLabel, submitRegional, type Progress, type RegionalAttempt } from './game';
+import { allowanceLabel, Button, Document, Folder, Hint, Icon, MethodNote, Money, PaymentLines, Stamp } from './ui/components';
 import { effect } from './audio';
 
-type Props = { progress: Progress; update: (p: Progress) => void; onBack: () => void };
+type Props = { progress: Progress; update: (change: (p: Progress) => Progress) => void; onBack: () => void };
 const topics = ['base', 'variants', 'key'] as const;
 const displayDecimal = (value: string) => value.replace('.', ',');
 
-function AmountField({ label, result, distractors, value, update }: {
-  label: string; result: number; distractors?: number[]; value: string; update: (value: string) => void;
+function AmountField({ label, options, value, update }: {
+  label: string; options?: number[]; value: string; update: (value: string) => void;
 }) {
   return <label class="real-field"><span>{label}</span>
-    {distractors?.length ? <select required value={value} onChange={event => update(event.currentTarget.value)}>
+    {options?.length ? <select required value={value} onChange={event => update(event.currentTarget.value)}>
       <option value="">Выберите сумму</option>
-      {[result, ...distractors].sort((a, b) => a - b).map(amount =>
+      {[...options].sort((a, b) => a - b).map(amount =>
         <option key={amount} value={formatAmount(amount)}>{formatAmount(amount)} ₽</option>)}
-    </select> : <input required inputMode="decimal" autoComplete="off" placeholder="В рублях" value={value}
+    </select> : <input required inputMode="decimal" autoComplete="off" maxLength={32} placeholder="В рублях" value={value}
       onInput={event => update(event.currentTarget.value)}/>}
   </label>;
 }
@@ -52,25 +52,31 @@ function RegionalFacts({ item }: { item: RegionCase }) {
   </Document></Folder>;
 }
 
-function RegionFeedback({ item, step, detailed }: { item: RegionCase; step: number; detailed: boolean }) {
-  const result = assessRegion(item);
+function RegionFeedback({ item, step, detailed, onKey }: {
+  item: RegionCase; step: number; detailed: boolean; onKey: () => void;
+}) {
+  const { base, full, minimum, w, due, complies } = assessRegion(item);
   return <div role="status"><Hint detailed={detailed}>
     <p>{step === 0 ? 'Проверьте, есть ли более высокая региональная МЗ и распространяется ли соглашение на этого работодателя.'
       : step === 1 ? 'Проверьте условия для k и s отдельно. Для минимума на полную ставку используйте B × (k + s).'
         : 'Сравните W с B × q. Положительную разницу умножьте на сумму k и s, затем округлите доплату.'}</p>
     {detailed && <details class="real-details region-review">
-      <summary>Сверить расчёт по ключу</summary>
-      {step === 0 ? <p>{baseLabels[result.base.source]} · <Money cents={result.base.amount}/>. {reasonLabels[result.base.reason]}.</p>
-        : <p>k = {displayDecimal(item.factors.k)}, s = {formatAllowance(item.factors.s)}. M = <Money cents={result.full}/>,
-          M × q = <Money cents={result.minimum}/>, W = <Money cents={result.w}/>, доплата — <Money cents={result.due}/>.</p>}
-      <p>{item.id === 9 && step === 1 && '54 186,00 ₽ получается и при k = 1,7, и при s = 0,5. Проверьте применимость каждого значения отдельно (п. 5.2).'}</p>
+      <summary onClick={event => {
+        if (!event.currentTarget.closest('details')?.open) onKey();
+      }}>Сверить расчёт по ключу</summary>
+      {step === 0 && <p>{baseLabels[base.source]} · <Money cents={base.amount}/>. {reasonLabels[base.reason]}.</p>}
+      {step === 1 && <p>k = {displayDecimal(item.factors.k)}, s — {allowanceLabel(item.factors.s)}. M = <Money cents={full}/>.</p>}
+      {step === 2 && <p>{complies ? 'Минимум соблюдён.' : 'Минимум не соблюдён.'}
+        {' '}M × q = <Money cents={minimum}/>, W = <Money cents={w}/>, доплата — <Money cents={due}/>.</p>}
+      {item.id === 9 && step === 1 && <p>54 186,00 ₽ получается и при k = 1,7, и при s = 0,5. Проверьте применимость каждого значения отдельно (п. 5.2).</p>}
       <p class="real-source">Методичка v5, п. 5.1, табл. 12</p>
     </details>}
   </Hint></div>;
 }
 
-function RegionalQuestion({ item, attempt, onAnswer, onBack, practice }: {
-  item: RegionCase; attempt: RegionalAttempt; onAnswer: (correct: boolean) => void; onBack: () => void; practice: boolean;
+function RegionalQuestion({ item, attempt, onAnswer, onBack, onKey, practice }: {
+  item: RegionCase; attempt: RegionalAttempt; onAnswer: (correct: boolean) => void; onBack: () => void;
+  onKey: () => void; practice: boolean;
 }) {
   const [basis, setBasis] = useState<BaseSource | ''>('');
   const [reason, setReason] = useState('');
@@ -83,8 +89,9 @@ function RegionalQuestion({ item, attempt, onAnswer, onBack, practice }: {
   if (step === 3) return <div class="inspection-panel region-questions">
     <Stamp>Проверка завершена</Stamp><h2>{practice ? 'Практика завершена' : 'Дело зачтено'}</h2>
     <p>{result.complies ? 'Минимум соблюдён.' : <>Доплата · <Money cents={result.due}/></>}
-      {!practice && <> · +{attemptReward({ ...attempt, hint: false })} XP</>}</p>
-    <MethodNote topics={topics}/><Button type="button" onClick={onBack}>К карте</Button>
+      {!practice && <> · {rewardLabel(attemptReward({ ...attempt, hint: attempt.hint ?? false }))}</>}</p>
+    <MethodNote topics={topics}/>
+    <div class="region-action"><Button type="button" onClick={onBack}>К карте</Button></div>
   </div>;
   function submit(event: Event) {
     event.preventDefault();
@@ -116,21 +123,23 @@ function RegionalQuestion({ item, attempt, onAnswer, onBack, practice }: {
         </label>
         <label class="real-field"><span>Северная надбавка s (доля)</span>
           {item.mistakes?.s ? <select required value={s} onChange={e => setS(e.currentTarget.value)}>
-            <option value="">Выберите надбавку</option>{item.mistakes.s.map(value => <option key={value} value={value}>{formatAllowance(value)}</option>)}
+            <option value="">Выберите надбавку</option>{item.mistakes.s.map(value => <option key={value} value={value}>{allowanceLabel(value)}</option>)}
           </select> : <input required inputMode="decimal" value={s} onInput={e => setS(e.currentTarget.value)} autoComplete="off"/>}
         </label>
-        <AmountField label="Применимый минимум M" result={result.full} distractors={item.mistakes?.minimum} value={amount} update={setAmount}/>
+        <AmountField label="Применимый минимум M"
+          options={item.mistakes?.minimum?.length ? [result.full, ...item.mistakes.minimum] : undefined}
+          value={amount} update={setAmount}/>
       </> : <>
         <label class="real-field"><span>Минимум соблюдён?</span><select required value={verdict} onChange={e => setVerdict(e.currentTarget.value)}>
           <option value="">Выберите вывод</option><option value="yes">Да</option><option value="no">Нет</option>
         </select></label>
-        <AmountField label="Доплата по формуле (3)" result={result.due} distractors={item.mistakes?.due} value={amount} update={setAmount}/>
+        <AmountField label="Доплата по формуле (3)" value={amount} update={setAmount}/>
         <p>Укажите 0 ₽, если доплата не требуется.</p>
       </>}
-      <Button type="submit">Проверить <Icon name="check" size={18}/></Button>
+      {attempt.wrong && <RegionFeedback item={item} step={step} detailed={regionalStepAttempts(attempt) >= 2} onKey={onKey}/>}
+      <MethodNote topics={topics}/>
+      <div class="region-action"><Button type="submit">Проверить <Icon name="check" size={18}/></Button></div>
     </form>
-    {attempt.wrong && <RegionFeedback item={item} step={step} detailed={attempt.attempts >= 2}/>}
-    <MethodNote topics={topics}/>
   </div>;
 }
 
@@ -141,7 +150,7 @@ export function LevelTwo({ progress, update, onBack }: Props) {
   const [selected, setSelected] = useState<number | null>(null);
   const [practice, setPractice] = useState(false);
   const [review, setReview] = useState(newRegionalAttempt);
-  const completed = assigned.filter(id => map.cases[id - 1].step === 3).length;
+  const completed = countRegionalCases(map, assigned);
   function returnToMap() {
     setSelected(null);
     window.scrollTo({ top: 0, behavior: 'instant' });
@@ -154,6 +163,7 @@ export function LevelTwo({ progress, update, onBack }: Props) {
   }
   return <section class="game-screen real-screen map-screen">
     <div class="game-breadcrumb"><button type="button" onClick={onBack}>Архив дел</button><span>/</span><span>Уровень 2</span>
+      <span class="data-badge">Методичка v5</span>
       {selected !== null && <button class="return-map" type="button" onClick={returnToMap}>К карте регионов</button>}</div>
     <div class="section-heading game-heading"><div><h1>Карта минимумов</h1></div></div>
     {selected === null ? <Folder><Document class="map-paper">
@@ -177,10 +187,13 @@ export function LevelTwo({ progress, update, onBack }: Props) {
       return <div class="region-case">
         <RegionalFacts item={item}/>
         <RegionalQuestion key={selected + '-' + attempt.step} item={item} attempt={attempt} practice={practice}
+          onKey={() => {
+            if (!practice) update(p => requestRegionalKey(p, selected, attempt.step));
+          }}
           onBack={returnToMap} onAnswer={correct => {
             effect(correct ? 'stamp' : 'click', progress.sound);
-            if (practice) setReview(gradeRegionalAttempt(review, correct));
-            else update(submitRegional(progress, selected, correct));
+            if (practice) setReview(state => gradeRegionalAttempt(state, correct));
+            else update(p => submitRegional(p, selected, correct));
           }}/>
       </div>;
     })()}
