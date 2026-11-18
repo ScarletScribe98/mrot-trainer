@@ -8,7 +8,7 @@ async function expectedDue(page: Page) {
  const regionalText = await rows.nth(1).innerText();
  const regional = regionalText.includes('Не установлен') ? 0n : cents(regionalText);
  const k = BigInt((await rows.nth(2).innerText()).replace(',', ''));
- const s = BigInt((await rows.nth(3).innerText()).replace(',', ''));
+ const s = BigInt((await rows.nth(3).innerText()).split(' %')[0]);
  const base = federal > regional ? federal : regional;
  const minimum = (base * (k + s) + 50n) / 100n;
  const salary = cents(await page.locator('.salary-row strong').innerText());

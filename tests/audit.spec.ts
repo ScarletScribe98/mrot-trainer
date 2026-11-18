@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { formatAmount } from '../src/calc';
+import { PRECACHE_BUDGET_BYTES } from '../src/config';
 
 const storageKey = 'inspektor-truda-v1';
 const screenshots = process.env.AUDIT_SCREEN_ROOT;
@@ -23,7 +24,7 @@ async function correctAnswer(page: Page) {
   const values = await page.locator('.audit-row-value').allTextContents();
   const [federal, regional, displayedBase] = values.slice(0, 3).map(cents);
   const k = Number(values[3].replace(',', ''));
-  const s = Number(values[4].replace(/\D/g, ''));
+  const s = Number(values[4].split(' %')[0]);
   const [displayedMinimum, salary, displayedDue] = values.slice(5, 8).map(cents);
   const base = Math.max(federal, regional);
   const minimum = Math.round(base * (k + s) / 100);
@@ -99,7 +100,7 @@ for (const viewport of viewports) {
         return bytes.reduce((sum, size) => sum + size, 0);
       });
       expect(precacheBytes).toBeGreaterThan(0);
-      expect(precacheBytes).toBeLessThanOrEqual(450_000);
+      expect(precacheBytes).toBeLessThanOrEqual(PRECACHE_BUDGET_BYTES);
     }
     const auditCard = page.locator('.level-card').filter({ has: page.getByRole('heading', { name: 'Аудит ведомости' }) });
     await expect(auditCard.getByText('0/5', { exact: true })).toBeVisible();
@@ -141,7 +142,7 @@ for (const viewport of viewports) {
     await row(page, 9).click();
     const walkthrough = page.getByRole('complementary', { name: 'Пошаговый разбор' });
     await expect(walkthrough).toBeVisible();
-    await expect(walkthrough.getByRole('link', { name: 'Повторить: часть N, п. X методички' })).toHaveAttribute('aria-disabled', 'true');
+    await expect(walkthrough.getByRole('link', { name: 'Повторить: раздел о применимом минимуме' })).toHaveAttribute('aria-disabled', 'true');
     await expect(walkthrough.getByRole('table')).toBeHidden();
     await expect(page.getByText('Ошибка найдена', { exact: true })).toHaveCount(0);
     await page.reload();

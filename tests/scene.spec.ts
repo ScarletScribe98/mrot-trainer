@@ -6,7 +6,7 @@ function cents(text:string){return BigInt(text.replace(/[^0-9,]/g,'').replace(',
 async function correct(page:Page){
  const rows=await page.locator('.data-table dd').allTextContents();
  const a=cents(rows[0]),b=rows[1].includes('Не установлен')?0n:cents(rows[1]);
- const total=BigInt(rows[2].replace(',',''))+BigInt(rows[3].replace(',',''));
+ const total=BigInt(rows[2].replace(',',''))+BigInt(rows[3].split(' %')[0]);
  const min=((a>b?a:b)*total+50n)/100n;
  const salary=cents(await page.locator('.salary-row strong').innerText());
  const due=min>salary?min-salary:0n;
