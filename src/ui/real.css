@@ -19,6 +19,14 @@
 .history-screen > :is(.game-breadcrumb, .game-heading) { grid-column: 1 / -1; }
 .history-screen > .inspection-panel { margin-top: 26px; }
 .history-paper > .real-source { margin-top: 5px; }
+.history-paper > .history-caption { margin-top: 12px; }
+.history-ratio-note { margin-top: 10px; font-size: 14px; }
+.history-ratio-note summary { cursor: pointer; padding-block: 8px; line-height: 1.4; }
+.history-ratio-note p { margin: 2px 0 8px; line-height: 1.5; }
+.history-comparison > .history-ratio-note {
+ grid-column: 1 / -1; margin-top: 0; padding: 0 11px; background: #14291e; border: 1px solid #607055;
+}
+.history-comparison > .history-ratio-note summary { color: var(--accent); }
 .timeline-track {
  display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); gap: 7px; margin: 19px 0 12px;
  border-top: 1px solid var(--paper-line); padding-top: 13px;

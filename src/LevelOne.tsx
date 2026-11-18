@@ -1,5 +1,5 @@
 import { useState } from 'preact/hooks';
-import { chronological, findMilestone, historyPairs, milestones, ratioHigher, sortKey, sortStart, supplements,
+import { chronological, findMilestone, historyPairs, historyRatioCaption, milestones, ratioHigher, sortKey, sortStart, supplements,
   type Milestone } from './data/real/study';
 import { attemptReward, nextHistory, rewardLabel, submitHistory, type Progress } from './game';
 import { Button, Document, Folder, Hint, Icon, MethodNote, Stamp } from './ui/components';
@@ -7,6 +7,14 @@ import { effect } from './audio';
 
 const yearName = (item: Milestone) => item.year + (item.project ? ' · проект' : '');
 type Props = { progress: Progress; update: (p: Progress) => void; onBack: () => void };
+
+function RatioNote({ item }: { item: Milestone }) {
+  if (!item.ratioNote) return null;
+  return <details class="history-ratio-note">
+    <summary>{item.year} · Почему не сходится?</summary>
+    <p>{item.ratioNote}</p>
+  </details>;
+}
 
 function SourceTable() {
   const groups = [['МРОТ', supplements.mrot], ['ПМ трудоспособного населения', supplements.pm], ['МРОТ / ПМ', supplements.ratio]] as const;
@@ -16,10 +24,11 @@ function SourceTable() {
     </div>
     <details class="real-details history-table">
       <summary>Показать вехи таблицы 7</summary>
-      <p>МРОТ дан на конец года. ПМ и отношение МРОТ / ПМ — средние за год. Суммы до 1998 года показаны в новых рублях.</p>
+      <p>Суммы до 1998 года показаны в новых рублях.</p>
       <table><thead><tr><th scope="col">Год</th><th scope="col">МРОТ, ₽</th><th scope="col">ПМ, ₽</th><th scope="col">МРОТ / ПМ</th></tr></thead>
         <tbody>{milestones.map(item => <tr key={item.year}><th scope="row">{yearName(item)}{item.denominated && <small>в новых рублях</small>}</th>
           <td>{item.mrot}</td><td>{item.pm}</td><td>{item.ratio}</td></tr>)}</tbody></table>
+      {milestones.map(item => <RatioNote key={item.year} item={item}/>)}
       <p class="real-source">Методичка v5, п. 2.4, табл. 7</p>
     </details>
     <details class="real-details history-dates"><summary>Даты и значения из текста</summary>
@@ -34,7 +43,7 @@ function ComparisonCard({ item, revealed }: { item: Milestone; revealed: boolean
     <h3>{yearName(item)}</h3>
     {item.denominated && <span class="real-source">Суммы в новых рублях</span>}
     {revealed ? <>
-      <dl><div><dt>МРОТ / ПМ</dt><dd class="history-ratio">{item.ratio}</dd></div>
+      <dl><div><dt>МРОТ / ПМ (в среднем за год)</dt><dd class="history-ratio">{item.ratio}</dd></div>
         <div><dt>МРОТ на конец года</dt><dd>{item.mrot} ₽</dd></div>
         <div><dt>Средний ПМ</dt><dd>{item.pm} ₽</dd></div></dl>
       <p>{item.event}</p><small class="real-source">{item.source}</small>
@@ -47,6 +56,7 @@ function HistoryRound({ progress, update }: Omit<Props, 'onBack'>) {
   const pair = historyPairs[state.turn];
   const [order, setOrder] = useState(sortStart);
   const markMisplaced = !pair && !state.accepted && state.attempts >= 2;
+  const showSecond = state.accepted || state.attempts > 0;
   function answer(correct: boolean) {
     effect(correct ? 'stamp' : 'click', progress.sound);
     update(submitHistory(progress, correct));
@@ -60,8 +70,12 @@ function HistoryRound({ progress, update }: Omit<Props, 'onBack'>) {
     <div class="real-task-head"><h2>{pair ? 'Выше или ниже?' : 'Расставьте события'}</h2><span>{state.turn + 1} / {historyPairs.length + 1}</span></div>
     {pair ? <>
       <p>Отношение МРОТ / ПМ во второй вехе выше или ниже, чем в первой?</p>
-      <div class="history-comparison"><ComparisonCard item={pair[0]} revealed/>
-        <ComparisonCard item={pair[1]} revealed={state.accepted || state.attempts > 0}/></div>
+      <div class="history-comparison">
+        <ComparisonCard item={pair[0]} revealed/>
+        <ComparisonCard item={pair[1]} revealed={showSecond}/>
+        <RatioNote item={pair[0]}/>
+        {showSecond && <RatioNote item={pair[1]}/>}
+      </div>
       {!state.accepted && <div class="real-actions">
         <Button type="button" onClick={() => answer(ratioHigher(...pair))}>Выше</Button>
         <Button type="button" variant="secondary" onClick={() => answer(!ratioHigher(...pair))}>Ниже</Button>
@@ -109,6 +123,7 @@ export function LevelOne({ progress, update, onBack }: Props) {
     <Folder><Document class="history-paper">
       <h2>Вехи МРОТ и прожиточного минимума</h2>
       <p class="real-source">Методичка v5, часть 2, п. 2.1–2.4</p>
+      <p class="real-source history-caption">{historyRatioCaption}</p>
       <SourceTable/>
     </Document></Folder>
     {complete ? <div class="inspection-panel real-task">

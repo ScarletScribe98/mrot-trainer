@@ -6,6 +6,7 @@ import { calculatePayroll, chooseBase, payment, qualifyingPay, showMoney, type B
 import { payAtRate } from '../../calc/training';
 
 export const { milestones, supplements } = historyData;
+export const historyRatioCaption = 'МРОТ — на конец года, ПМ и отношение — в среднем за год (примечание к табл. 7)';
 export type Milestone = typeof milestones[number];
 export const findMilestone = (year: number) => milestones.find(row => row.year === year)!;
 export const historyPairs = [[1992, 1997], [1999, 2001], [2009, 2015], [2018, 2021], [2027, 2023]]
