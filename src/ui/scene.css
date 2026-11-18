@@ -31,3 +31,8 @@
   .scene-layer { transform: none !important; }
   .scene-light, .scene-dust i { animation: none !important; }
 }
+
+/* Keep the shade to the right of the level 3 title and case counter. */
+@media (min-width:1200px) {
+  .main--game .game-heading { justify-content: flex-start; column-gap: clamp(24px, 4vw, 64px); }
+}
