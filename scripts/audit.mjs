@@ -6,7 +6,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 const chromePath = `${process.env['PROGRAMFILES(X86)']}\\Microsoft\\Edge\\Application\\msedge.exe`;
 const profile = `work/lighthouse-scene-${Date.now()}`;
-const directory = process.env.AUDIT_OUTPUT_DIR || 'work/etap3/lighthouse';
+const directory = process.env.AUDIT_OUTPUT_DIR || 'work/etap4/lighthouse';
 const scores=[];
 async function seedFinal(context, hash) {
  const page = await context.newPage();
@@ -17,7 +17,7 @@ async function seedFinal(context, hash) {
   await page.evaluate(signed => {
    const key = 'inspektor-truda-v1';
    const progress = JSON.parse(localStorage.getItem(key));
-   progress.completed = signed ? [3, 4, 5] : [3, 4];
+   progress.completed = signed ? [1, 2, 3, 4, 5] : [3, 4];
    progress.xp = signed ? 1350 : 1100;
    progress.allLevelsBonusAwarded = signed;
    if (signed) {
@@ -42,7 +42,7 @@ const server = await preview({ preview: { port:4174, strictPort:true, host:'127.
 const chrome = await launch({ chromePath, userDataDir:resolve(profile), chromeFlags:['--headless=new','--no-first-run','--disable-extensions'] });
 try {
  const browser = await chromium.connectOverCDP('http://127.0.0.1:' + chrome.port);
- for (const [name, hash] of [['title','#title'], ['levels','#levels'], ['level3','#game'], ['level4','#audit'], ['final','#final'], ['act','#act']]) {
+ for (const [name, hash] of [['title','#title'], ['levels','#levels'], ['history','#history'], ['map','#map'], ['level3','#game'], ['level4','#audit'], ['final','#final'], ['act','#act']]) {
   const seeded = hash === '#final' || hash === '#act';
   if (seeded) await seedFinal(browser.contexts()[0], hash);
   const result = await lighthouse(`http://127.0.0.1:4174/${hash}`, { port:chrome.port, output:['html','json'], onlyCategories:['performance','accessibility'], disableStorageReset: seeded, formFactor:'mobile', screenEmulation:{mobile:true,width:360,height:740,deviceScaleFactor:1,disabled:false}, logLevel:'error' });

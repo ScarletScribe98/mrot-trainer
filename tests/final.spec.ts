@@ -9,7 +9,7 @@ const viewports = [{ width: 1920, height: 1080 }, { width: 360, height: 740 }];
 
 
 
-async function prepare(page: Page, completed: number[] = [3, 4]) {
+async function prepare(page: Page, completed: number[] = [1, 2, 3, 4]) {
   const progress = initialProgress();
   progress.completed = completed;
   progress.sound = false;
