@@ -39,7 +39,8 @@
 }
 .final-paper input::placeholder { color: #51604c; opacity: 1; }
 .final-money-input { display: flex; align-items: stretch; position: relative; }
-.final-money-input input { padding-right: 30px !important; font-family: var(--font-mono) !important; }
+.final-paper .final-money-input input { font-family: var(--font-mono); }
+.final-paper .final-money-input:has(> span) input { padding-right: 28px; }
 .final-money-input > span { position: absolute; right: 8px; top: 11px; color: #455642; pointer-events: none; }
 .final-paper input:disabled { background: #dce0d2; }
 .final-field--invalid :is(select,input) { border-color: #9e3f38 !important; background: #faefe7 !important; }
@@ -73,11 +74,14 @@
   .final-table, .final-table tbody { display: block; }
   .final-worker { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); border: 1px solid var(--paper-line); margin-bottom: 10px; }
   .final-worker th { grid-column: 1 / -1; background: var(--paper-tint); }
-  .final-worker td:nth-child(n) { min-width: 0; width: auto; border-bottom: 0; padding: 6px 8px; }
+  .final-table tbody td:nth-child(n) { min-width: 0; width: auto; border-bottom: 0; padding: 6px 8px; }
   .final-review-row, .final-review-row td { display: block; width: 100%; }
   .final-review-row td { padding: 0 0 10px; border: 0; }
   .final-mobile-label { display: block; font: 14px/1.3 var(--font-sans); color: var(--ink-muted); margin-bottom: 3px; }
   .final-salary .money, .final-allowance { font-size: 16px; }
+}
+@media (max-width:760px) {
+  .main--final, .main--act { overflow-x: clip; }
 }
 @media (max-width:640px) {
   .final-heading { gap: 8px; }

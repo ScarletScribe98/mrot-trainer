@@ -48,7 +48,7 @@ function SumField({ id, label, value, onChange, hint, invalid, disabled }: Field
         aria-describedby={invalid ? 'final-tip-' + id : undefined}
         inputMode="decimal" autoComplete="off" maxLength={32} value={value} disabled={disabled}
         placeholder={disabled ? '—' : '0,00'} onInput={e => onChange(e.currentTarget.value)}/>
-      <span aria-hidden="true">₽</span>
+      {!disabled && !value.includes('₽') && <span aria-hidden="true">₽</span>}
     </div>
     {invalid && <p class="final-tip" id={'final-tip-' + id}>{hint}</p>}
   </div>;
@@ -211,7 +211,7 @@ export function FinalCase({ progress, update, onBack, onSigned }: {
             <Icon name="info" size={17}/>Нужна подсказка?<span>Зачёт +50</span>
           </button>}
         </div>
-        <p role="status" class="final-submit-status">{final.act ? 'Акт подписан' : invalidBase ? 'Проверьте общую базу.'
+        <p role="status" class="final-submit-status">{invalidBase ? 'Проверьте общую базу.'
           : issues.length ? 'В ведомости есть ответы, которые нужно сверить.' : ''}</p>
         {final.hint && !final.act && <p class="final-help">Начните с большей базы. Для каждой строки посчитайте B × (k + s) и сравните с начисленной зарплатой.</p>}
       </div>

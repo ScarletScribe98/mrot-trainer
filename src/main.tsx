@@ -43,7 +43,12 @@ function App() {
  useLayoutEffect(() => { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(progress)); setStorageError(false); } catch { setStorageError(true); } }, [progress]);
  useEffect(() => { if (!('serviceWorker' in navigator) || import.meta.env.DEV) return; let active = true; void navigator.serviceWorker.ready.then(async () => { if (!navigator.serviceWorker.controller) await new Promise<void>(resolve => navigator.serviceWorker.addEventListener('controllerchange', () => resolve(), { once: true })); if (active) setOfflineReady(true); }); return () => { active = false; }; }, []);
  useEffect(() => { const resume = () => setMusic(progress.music && !document.hidden); document.addEventListener('pointerdown', resume, { once: true }); document.addEventListener('visibilitychange', resume); if (!progress.music) setMusic(false); return () => { document.removeEventListener('pointerdown', resume); document.removeEventListener('visibilitychange', resume); }; }, [progress.music]);
- const navigate = (next: Screen, sound = true) => { if (sound) effect('paper', progress.sound); location.hash = next; setScreen(next); window.scrollTo({ top: 0, behavior: 'instant' }); };
+ const navigate = (next: Screen) => { effect('paper', progress.sound); location.hash = next; setScreen(next); window.scrollTo({ top: 0, behavior: 'instant' }); };
+ const showSignedAct = () => {
+  history.replaceState(history.state, '', '#act');
+  setScreen('act');
+  window.scrollTo({ top: 0, behavior: 'instant' });
+ };
  const replay = () => { setProgress({ ...progress, run: newRun((progress.run.seed + 1777) >>> 0) }); navigate('game'); };
  const replayAudit = () => { setProgress(p => ({ ...p, audit: newAuditRun((p.audit.seed + 1777) >>> 0) })); navigate('audit'); };
  const toggleSound = () => { effect('click', !progress.sound); setProgress(p => ({ ...p, sound: !p.sound })); };
@@ -56,7 +61,7 @@ function App() {
  {screen === 'levels' && <Levels progress={progress} onStart={() => navigate('game')} onStartAudit={() => navigate('audit')} onStartFinal={() => navigate(progress.final.act ? 'act' : 'final')}/>}
  {screen === 'game' && <Game key={progress.run.seed} progress={progress} update={setProgress} onBack={() => navigate('levels')} onReplay={replay}/>}
  {screen === 'audit' && <LevelFour key={progress.audit.seed} progress={progress} update={setProgress} onBack={() => navigate('levels')} onReplay={replayAudit}/>}
- {screen === 'final' && <FinalCase progress={progress} update={setProgress} onBack={() => navigate('levels')} onSigned={() => navigate('act', false)}/>}
+ {screen === 'final' && <FinalCase progress={progress} update={setProgress} onBack={() => navigate('levels')} onSigned={showSignedAct}/>}
  {screen === 'act' && progress.final.act && <ActScreen
   act={makeActData(generateFinalSheet(progress.final.seed), progress.final.act, progress.final.draft.name)}
   onBack={() => navigate('levels')}/>}

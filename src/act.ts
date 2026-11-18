@@ -34,20 +34,21 @@ export async function saveActPng(act: ActData) {
   const canvas = document.createElement('canvas');
   canvas.width = 1600;
   canvas.height = 1420;
-  const ctx = canvas.getContext('2d');
-  if (!ctx) throw new Error('Canvas is unavailable');
+  const context = canvas.getContext('2d');
+  if (!context) throw new Error('Canvas is unavailable');
+  const ctx = context;
 
   const ink = '#243128', mute = '#465745', rule = '#879580';
   const sans = 'Golos, Arial, sans-serif', serif = '"Source Serif", Georgia, serif';
   const mono = '"Plex Mono", Consolas, monospace';
   function text(value: string, x: number, y: number, size: number, font = sans, color = ink, maxWidth = 1360) {
-    ctx!.font = size + 'px ' + font;
-    ctx!.fillStyle = color;
-    ctx!.fillText(value, x, y, maxWidth);
+    ctx.font = size + 'px ' + font;
+    ctx.fillStyle = color;
+    ctx.fillText(value, x, y, maxWidth);
   }
   function line(y: number) {
-    ctx!.fillStyle = rule;
-    ctx!.fillRect(112, y, 1376, 2);
+    ctx.fillStyle = rule;
+    ctx.fillRect(112, y, 1376, 2);
   }
   ctx.fillStyle = '#e8e9dd';
   ctx.fillRect(0, 0, 1600, 1420);

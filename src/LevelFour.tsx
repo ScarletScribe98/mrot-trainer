@@ -84,6 +84,7 @@ export function LevelFour({ progress, update, onBack, onReplay }: {
       <Stamp>Проверка завершена</Stamp>
       <h2>Пять ведомостей проверены</h2>
       <p>Вы нашли первую ошибку в каждом расчёте, объяснили её и внесли исправление.</p>
+      <p class="result-notice">{progress.completed.includes(3) ? 'Финальное дело доступно в архиве.' : 'Пройдите карточки работников, чтобы открыть финальное дело.'}</p>
       <div class="result-stats"><div><strong>5 / 5</strong><span>листов проверено</span></div>
         <div><strong>+{audit.earned}</strong><span>очков за прохождение</span></div></div>
     </Document>
