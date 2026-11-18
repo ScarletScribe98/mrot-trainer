@@ -1,5 +1,5 @@
 import { useState } from 'preact/hooks';
-import { actColumns, actDisclaimer, actStamp, saveActPng, type ActData } from './act';
+import { actDisclaimer, actStamp, saveActPng, type ActData } from './act';
 import { Button, Document, Icon, Stamp } from './ui/components';
 
 export function ActScreen({ act, onBack }: { act: ActData; onBack: () => void }) {
@@ -33,11 +33,11 @@ export function ActScreen({ act, onBack }: { act: ActData; onBack: () => void })
         <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>
 
       <table class="act-table" aria-label="Результаты проверки работников" role="table">
-        <thead role="rowgroup"><tr role="row">{actColumns.map((label, i) =>
+        <thead role="rowgroup"><tr role="row">{act.columns.map((label, i) =>
           <th scope="col" role="columnheader" key={i}>{label}</th>)}</tr></thead>
         <tbody role="rowgroup">{act.rows.map(([name, ...amounts]) => <tr role="row" key={name}>
           <th scope="row" role="rowheader">{name}</th>
-          {amounts.map((value, i) => <td role="cell" key={i}><span class="act-mobile-label" aria-hidden="true">{actColumns[i + 1]}</span>
+          {amounts.map((value, i) => <td role="cell" key={i}><span class="act-mobile-label" aria-hidden="true">{act.columns[i + 1]}</span>
             <span class="act-amount">{value}</span></td>)}
         </tr>)}</tbody>
       </table>

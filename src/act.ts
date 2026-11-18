@@ -3,13 +3,18 @@ import type { FinalSheet } from './calc/final';
 import { rank, type InspectionAct } from './game';
 
 export const actDisclaimer = 'Учебный документ. Тренажёр по курсу «Минимальная оплата труда».';
-export const actColumns = ['Работник', 'Начислено', 'Применимый минимум', 'Недоплата'];
+const legacyColumns = ['Работник', 'Начислено', 'Применимый минимум', 'Недоплата'];
+const payrollColumns = ['Работник', 'Начислено до доплаты', 'Минимум с учётом ставки', 'Доплата'];
 export const actStamp = 'Проверка завершена';
 const rubles = (cents: number) => formatAmount(cents) + ' ₽';
 
-export function makeActData(sheet: FinalSheet, act: InspectionAct, name: string) {
+type ActSheet = Pick<FinalSheet, 'organization' | 'region' | 'total'> & {
+  rows: Pick<FinalSheet['rows'][number], 'name' | 'salary' | 'minimum' | 'due'>[];
+};
+export function makeActData(sheet: ActSheet, act: InspectionAct, name: string) {
   return {
     number: '001',
+    columns: act.method === 5 ? payrollColumns : legacyColumns,
     date: act.date.split('-').reverse().join('.'),
     details: [
       ['Организация', sheet.organization], ['Учебный регион', sheet.region],
@@ -74,9 +79,9 @@ export async function saveActPng(act: ActData) {
   const columns = [131, 767, 1135, 1468];
   ctx.fillStyle = '#d8ddca';
   ctx.fillRect(112, 585, 1376, 65);
-  actColumns.forEach((label, i) => {
+  act.columns.forEach((label, i) => {
     ctx.textAlign = i === 0 ? 'left' : 'right';
-    text(label, columns[i], 625, 25, sans);
+    text(label, columns[i], 625, 24, sans, ink, i === 0 ? 360 : 315);
   });
   act.rows.forEach((row, i) => {
     const top = 650 + 67 * i;

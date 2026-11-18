@@ -6,7 +6,7 @@ import { baseLabels } from './calc/audit';
 import { formatAllowance, generateFinalSheet, type FinalCell, type FinalDraft, type FinalVerdict } from './calc/final';
 import { submitFinal, type Progress } from './game';
 import { effect } from './audio';
-import { Button, Document, Folder, Icon, MethodNote, Money } from './ui/components';
+import { Button, Document, Folder, Icon, MethodNote, Money, PaymentLines, type MethodTopic } from './ui/components';
 
 type Update = (change: (p: Progress) => Progress) => void;
 const amountLabel = (value: string) => value.trim() || 'Сумма не указана';
@@ -14,14 +14,14 @@ const rubles = (cents: number) => formatAmount(cents) + ' ₽';
 const verdictLabel = (value: FinalVerdict) => value === 'yes' ? 'Нарушение есть' : value === 'no' ? 'Нарушения нет' : 'Вывод не выбран';
 const conclusionLabel = (value: FinalVerdict) => value === 'yes' ? 'Нарушения выявлены' : value === 'no' ? 'Нарушения не выявлены' : 'Вывод не выбран';
 
-function Review({ title, entered, correct, children }: {
-  title: string; entered: string; correct: string; children: ComponentChildren;
+function Review({ title, entered, correct, children, topics = ['topup', 'key'] }: {
+  title: string; entered: string; correct: string; children: ComponentChildren; topics?: readonly MethodTopic[];
 }) {
   return <details class="final-review">
     <summary>{title}</summary>
     <p>{children}</p>
     <dl><div><dt>В ведомости</dt><dd>{entered}</dd></div><div><dt>Верно</dt><dd>{correct}</dd></div></dl>
-    <MethodNote/>
+    <MethodNote topics={topics}/>
   </details>;
 }
 
@@ -134,7 +134,7 @@ export function FinalCase({ progress, update, onBack, onSigned }: {
                 <span>{baseLabels[source]}</span><Money cents={sheet[source]}/>
               </label>)}</div>
             {invalidBase && <p class="final-tip" id="final-tip-base">Сравните МРОТ и региональный минимум. Проверьте выбор общей базы B.</p>}
-            {invalidBase && detailed && <Review title="Разбор выбора базы"
+            {invalidBase && detailed && <Review title="Разбор выбора базы" topics={['base']}
               entered={draft.base ? baseLabels[draft.base] + ' · ' + rubles(sheet[draft.base]) : 'База не выбрана'}
               correct={baseLabels[sheet.baseSource] + ' · ' + rubles(sheet.base)}>
               Выберите большую из двух сумм. От неё зависит минимум для каждого работника.
@@ -143,7 +143,7 @@ export function FinalCase({ progress, update, onBack, onSigned }: {
 
           <table class="final-table" aria-label="Расчётная ведомость на четырёх работников" role="table">
             <thead role="rowgroup"><tr role="row">
-              {['Работник', 'Начислено', 'Надбавка s', 'Нарушение', 'Недоплата'].map(label =>
+              {['Работник', 'Доля ставки q', 'Надбавка s', 'Выплаты', 'Нарушение', 'Доплата'].map(label =>
                 <th scope="col" role="columnheader" key={label}>{label}</th>)}
             </tr></thead>
             <tbody role="rowgroup">{sheet.rows.map((row, index) => {
@@ -155,22 +155,25 @@ export function FinalCase({ progress, update, onBack, onSigned }: {
               return <Fragment key={row.name}>
                 <tr class="final-worker" role="row">
                   <th scope="row" role="rowheader"><strong>{row.name}</strong><small>{row.position}</small></th>
-                  <td class="final-salary" role="cell"><span class="final-mobile-label" aria-hidden="true">Начислено</span><Money cents={row.salary}/></td>
+                  <td class="final-rate" role="cell"><span class="final-mobile-label" aria-hidden="true">Доля ставки q</span><span>{row.q.replace('.', ',')}</span></td>
                   <td class="final-allowance" role="cell"><span class="final-mobile-label" aria-hidden="true">Надбавка s</span><span>{formatAllowance(row.s)}</span></td>
-                  <td role="cell"><span class="final-mobile-label" aria-hidden="true">Нарушение</span>
+                  <td class="final-payments" role="cell"><details class="payment-details">
+                    <summary>Состав выплат</summary><PaymentLines payments={row.payments}/>
+                  </details></td>
+                  <td class="final-verdict-cell" role="cell"><span class="final-mobile-label" aria-hidden="true">Нарушение</span>
                     <Choice id={verdictId} label={'Нарушение · ' + row.name} value={answer.verdict} invalid={invalidVerdict}
-                      hint="Сравните начисленную зарплату с применимым минимумом."
+                      hint="Сравните учитываемую зарплату W с B × q."
                       onChange={verdict => editRow(index, verdict === 'yes' ? { verdict } : { verdict, amount: '' }, verdictId)}/></td>
-                  <td role="cell"><span class="final-mobile-label" aria-hidden="true">Недоплата</span>
+                  <td class="final-amount-cell" role="cell"><span class="final-mobile-label" aria-hidden="true">Доплата</span>
                     <SumField id={amountId} label={'Недоплата · ' + row.name} value={answer.amount} disabled={answer.verdict !== 'yes'}
                       invalid={invalidAmount} onChange={amount => editRow(index, { amount }, amountId)}
-                      hint="Вычтите начисленную зарплату из применимого минимума."/></td>
+                      hint="Умножьте положительную разницу B × q − W на сумму k и s."/></td>
                 </tr>
                 {detailed && (invalidVerdict || invalidAmount) && <tr class="final-review-row" role="row">
-                  <td colSpan={5} role="cell"><Review title={'Разбор строки · ' + row.name}
+                  <td colSpan={6} role="cell"><Review title={'Разбор строки · ' + row.name} topics={['wages', 'topup', 'key']}
                     entered={verdictLabel(answer.verdict) + (answer.verdict === 'yes' ? ' · ' + amountLabel(answer.amount) : '')}
-                    correct={verdictLabel(row.due > 0 ? 'yes' : 'no') + ' · ' + rubles(row.due)}>
-                    B × (k + s) = {rubles(row.minimum)}. Начислено {rubles(row.salary)}. Недоплата равна положительной разности.
+                    correct={verdictLabel(row.violation ? 'yes' : 'no') + ' · ' + rubles(row.due)}>
+                    Учтите оклад за ставку и премию. W = {rubles(row.w)}, q = {row.q.replace('.', ',')}. Доплата = max(0; B × q − W) × (k + s).
                   </Review></td>
                 </tr>}
               </Fragment>;
@@ -213,7 +216,7 @@ export function FinalCase({ progress, update, onBack, onSigned }: {
         </div>
         <p role="status" class="final-submit-status">{invalidBase ? 'Проверьте общую базу.'
           : issues.length ? 'В ведомости есть ответы, которые нужно сверить.' : ''}</p>
-        {final.hint && !final.act && <p class="final-help">Начните с большей базы. Для каждой строки посчитайте B × (k + s) и сравните с начисленной зарплатой.</p>}
+        {final.hint && !final.act && <p class="final-help">Выберите базу. Для каждой строки сравните W с B × q. Положительную разницу умножьте на сумму k и s.</p>}
       </div>
     </form>
   </section>;

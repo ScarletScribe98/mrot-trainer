@@ -1,21 +1,22 @@
 import { useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { formatAllowance } from './calc/final';
-import { baseLabels, generateAuditSheets, parseAuditAmount, type AuditAnswer, type AuditError, type AuditSheet } from './calc/audit';
+import { auditFields, baseLabels, derivedRows, generateAuditSheets, parseAuditAmount, type AuditAnswer, type AuditError, type AuditSheet, type DerivedRow } from './calc/audit';
 import { advanceAudit, requestAuditHint, submitAudit, type AuditStep, type Progress } from './game';
 import { effect } from './audio';
 import { Asset, Portrait } from './ui/artwork';
-import { Button, Document, Folder, Hint, Icon, MethodNote, Money, Stamp } from './ui/components';
+import { Button, Document, Folder, Hint, Icon, MethodNote, Money, PaymentLines, Stamp, type MethodTopic } from './ui/components';
 
 const rowLabels = [
   'МРОТ (учебный)', 'Региональный минимум (учебный)', 'Принятая база B', 'Районный коэффициент k',
-  'Процентная надбавка s', 'Применимый минимум', 'Начисленная зарплата', 'Недоплата', 'Вывод',
+  'Северная надбавка s', 'Доля ставки q', 'Учитываемая зарплата W', 'Минимум на полную ставку M',
+  'Минимум на ставку M × q', 'Начислено до доплаты', 'Доплата', 'Вывод',
 ];
 const sourceNotes: Record<number, string> = {
   1: 'Учебное значение МРОТ для этого дела.',
   2: 'Учебный минимум региона работника. Его сравнивают с МРОТ при выборе базы.',
   4: 'Коэффициент из исходных данных. В расчёте его складывают с долей надбавки.',
   5: 'Для расчёта процент нужно записать десятичной дробью, например 20 % = 0,20.',
-  7: 'Начислено за полностью отработанный месяц.',
+  6: 'Доля ставки за отработанную норму. При расчёте умножьте базу B на q.',
 };
 const stepTitles = {
   row: 'Найдите первую ошибку',
@@ -27,6 +28,12 @@ function verdictLabel(violation: boolean): string {
   return violation ? 'Нарушение есть' : 'Нарушения нет';
 }
 
+function calculatedValue(calc: AuditSheet['shown'], row: DerivedRow) {
+  if (row === 3) return <><Money cents={calc.base}/><small>{baseLabels[calc.source]}</small></>;
+  if (row === 12) return <span class="audit-verdict">{verdictLabel(calc.violation)}</span>;
+  return <Money cents={calc[auditFields[row]]}/>;
+}
+
 function Worksheet({ sheet, index, selected, canSelect, wrongSelection, detailed, onSelect, onNotes }: {
   sheet: AuditSheet; index: number; selected: number | null; canSelect: boolean; wrongSelection: boolean;
   detailed: boolean; onSelect: (row: number) => void; onNotes: () => void;
@@ -35,10 +42,8 @@ function Worksheet({ sheet, index, selected, canSelect, wrongSelection, detailed
   const [viewed, setViewed] = useState<number | null>(null);
   const values = [
     <Money cents={task.federal}/>, <Money cents={task.regional}/>,
-    <><Money cents={shown.base}/><small>{baseLabels[shown.source]}</small></>,
-    task.k.replace('.', ','), formatAllowance(task.s),
-    <Money cents={shown.minimum}/>, <Money cents={task.salary}/>, <Money cents={shown.due}/>,
-    <span class="audit-verdict">{verdictLabel(shown.violation)}</span>,
+    calculatedValue(shown, 3), task.k.replace('.', ','), formatAllowance(task.s), task.q.replace('.', ','),
+    ...derivedRows.slice(1).map(row => calculatedValue(shown, row)),
   ];
 
   return <Folder><Document class="audit-sheet">
@@ -51,6 +56,9 @@ function Worksheet({ sheet, index, selected, canSelect, wrongSelection, detailed
     </div>
     <h3>Расчёт предыдущего проверяющего</h3>
     {canSelect && <p class="audit-sheet-instruction">Отметьте первую неверную строку.</p>}
+    <details class="payment-details"><summary>Состав выплат работника</summary>
+      <PaymentLines payments={task.payments} classified={false}/>
+    </details>
     <ol class="audit-rows">
       {rowLabels.map((label, i) => {
         const row = i + 1;
@@ -95,36 +103,37 @@ export function LevelFour({ progress, update, onBack, onReplay }: {
 }
 
 function AuditFeedback({ sheet, step, detailed }: { sheet: AuditSheet; step: AuditStep; detailed: boolean }) {
-  const shortHint = step === 'row' ? 'Сверьте базу, минимум и недоплату по порядку.'
+  const shortHint = step === 'row' ? 'Сверьте базу, ставку, состав W и доплату по порядку.'
     : step === 'explanation' ? 'Сопоставьте отмеченную строку с исходными данными и формулой.'
     : sheet.row === 3 ? 'Сравните суммы в первых двух строках.'
-    : sheet.row === 6 ? 'Сложите k и долю надбавки s. Умножьте базу B на полученную сумму.'
-    : 'Вычтите зарплату из применимого минимума. Если разность отрицательна, запишите ноль.';
+    : sheet.row === 7 ? 'Сложите только оклад за ставку и ежемесячную премию.'
+    : sheet.row === 8 ? 'Умножьте выбранную базу B на сумму k и s.'
+    : sheet.row === 9 ? 'Посчитайте M × q, сохраняя точность до получения результата.'
+    : 'Сравните W с B × q. Положительную разницу умножьте на сумму k и s.';
+  const topic: Record<AuditError, MethodTopic> = {
+    wrong_base: 'base', k_s_misapplied: 'coefficients', arithmetic: 'topup', rounding: 'key',
+    w_includes_excluded: 'wages', rate_ignored: 'topup', coef_in_minimum: 'topup',
+  };
   return <Hint detailed={detailed}>
     <p>{shortHint}</p>
     {detailed && <>
       <ol>
-        <li>Сравните МРОТ и региональный минимум. Возьмите большую базу B.</li>
-        <li>Посчитайте применимый минимум по формуле B × (k + s).</li>
-        <li>Сверьте недоплату и вывод. Нарушение есть, если недоплата больше нуля.</li>
+        <li>Выберите базу B, посчитайте M = B × (k + s) и M × q.</li>
+        <li>Сложите оклад за ставку и премию, чтобы получить W. Сравните W с B × q.</li>
+        <li>Доплату считайте по формуле (3). Округляйте только показываемые суммы.</li>
       </ol>
       <details class="audit-comparison">
         <summary>Сравнить расчёты</summary>
         <table><thead><tr><th scope="col">Строка</th><th scope="col">В листе</th><th scope="col">Верно</th></tr></thead>
-          <tbody>{([3, 6, 8, 9] as const).map(row => {
-            const compareValue = (calc: AuditSheet['shown']) => {
-              if (row === 3) return <><Money cents={calc.base}/><small>{baseLabels[calc.source]}</small></>;
-              if (row === 9) return verdictLabel(calc.violation);
-              return <Money cents={row === 6 ? calc.minimum : calc.due}/>;
-            };
+          <tbody>{derivedRows.map(row => {
             return <tr class={row === sheet.row ? 'audit-comparison-error' : ''} key={row}>
               <th scope="row">{rowLabels[row - 1]}{row === sheet.row && <small>Первая ошибка</small>}</th>
-              <td>{compareValue(sheet.shown)}</td><td>{compareValue(sheet.correct)}</td>
+              <td>{calculatedValue(sheet.shown, row)}</td><td>{calculatedValue(sheet.correct, row)}</td>
             </tr>;
           })}</tbody>
         </table>
       </details>
-      <MethodNote/>
+      <MethodNote topics={['mistakes', topic[sheet.error]]}/>
     </>}
   </Hint>;
 }

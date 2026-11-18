@@ -1,6 +1,7 @@
 import { Asset } from './artwork';
 import type { ComponentChildren, JSX } from 'preact';
 import { formatAmount } from '../calc';
+import { paymentLabels, type Payment } from '../calc/payroll';
 import { rank, nextRank } from '../game';
 export function Icon({ name, size = 22 }: { name: 'archive' | 'arrow' | 'check' | 'sound' | 'music' | 'lock' | 'info'; size?: number }) {
   const paths = { archive: 'M3 8h18v13H3z M2 3h20v5H2z M9 12h6', arrow: 'M4 12h15 M13 6l6 6-6 6', check: 'm5 12 4 4L19 6', sound: 'M11 4 6 8H3v8h3l5 4z M16 8c3 2 3 6 0 8 M19 5c5 4 5 10 0 14', music: 'M9 18V5l11-2v13 M9 8l11-2 M9 18c0 3-6 3-6 0s6-3 6 0 M20 16c0 3-6 3-6 0s6-3 6 0', lock: 'M5 11h14v10H5z M8 11V7a4 4 0 0 1 8 0v4', info: 'M12 11v6 M12 7v1 M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0' };
@@ -11,9 +12,29 @@ export function Folder({ children, class: className = '' }: { children: Componen
 export function Document({ children, class: className = '' }: { children: ComponentChildren; class?: string }) { return <article class={`document ${className}`}>{children}</article>; }
 export function Stamp({ children }: { children: ComponentChildren }) { return <div class="stamp" role="status"><Asset name="stamp-frame" class="stamp-ink" stretch/><span>{children}</span></div>; }
 export function Hint({ detailed = false, children }: { detailed?: boolean; children: ComponentChildren }) { return <aside class={`hint ${detailed ? 'hint--detailed' : ''}`} aria-label={detailed ? 'Пошаговый разбор' : 'Подсказка'}><span class="eyebrow">{detailed ? 'Порядок проверки' : 'На что обратить внимание'}</span>{children}</aside>; }
-// TODO(Эрика): подставить ссылку на раздел методички после сверки.
-export function MethodNote() {
-  return <p class="method-placeholder"><span role="link" aria-disabled="true">Повторить: раздел о применимом минимуме</span></p>;
+const methodSections = {
+  base: [['p1-2', 'Часть 1, п. 1.2']],
+  coefficients: [['p1-3', 'Часть 1, п. 1.3'], ['appendix-1', 'Приложение 1']],
+  topup: [['p4-1', 'Часть 4, п. 4.1, формула (3)']],
+  key: [['p5-1', 'Часть 5, п. 5.1']],
+  mistakes: [['p5-2', 'Часть 5, п. 5.2']],
+  wages: [['p1-3', 'Часть 1, п. 1.3'], ['p5-4', 'Часть 5, п. 5.4']],
+} as const;
+export type MethodTopic = keyof typeof methodSections;
+export function MethodNote({ topics = ['topup'] }: { topics?: readonly MethodTopic[] }) {
+  const links = new Map(topics.flatMap<readonly [string, string]>(topic => methodSections[topic]));
+  return <p class="method-placeholder">Повторить: {' '}
+    {[...links].map(([section, label], index) => <span key={section}>
+      {index > 0 && ' · '}
+      <a href={import.meta.env.BASE_URL + 'method-v5.html#' + section} target="_blank" rel="noopener">{label}</a>
+    </span>)}
+  </p>;
+}
+export function PaymentLines({ payments, classified = true }: { payments: readonly Payment[]; classified?: boolean }) {
+  return <dl class="pay-lines">{payments.map(item => <div class="pay-line" data-kind={item.kind} key={item.kind}>
+    <dt>{paymentLabels[item.kind]}{classified && <small>{item.inW ? 'Входит в W' : 'Сверх минимума'}</small>}</dt>
+    <dd><Money cents={item.cents}/></dd>
+  </div>)}</dl>;
 }
 export function AmountInput({ value, onChange, disabled, invalid }: { value: string; onChange: (v: string) => void; disabled: boolean; invalid: boolean }) { return <div class="amount-control"><input id="underpayment" inputMode="decimal" autoComplete="off" maxLength={32} placeholder="0,00" value={value} disabled={disabled} aria-invalid={invalid || undefined} aria-describedby="amount-help" onInput={e => { const raw = e.currentTarget.value.replace(/[ \u00a0\u202f]/g, ''); if (!/^\d*(?:[.,]\d*)?$/.test(raw)) { onChange(e.currentTarget.value); return; } const [whole, fraction] = raw.split(/[.,]/); onChange(whole.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + (fraction !== undefined ? ',' + fraction : '')); }}/><span aria-hidden="true">₽</span></div>; }
 export function XPPanel({ xp }: { xp: number }) { const target = nextRank(xp); return <section class="xp-panel" aria-label="Опыт и звание"><div class="eyebrow">Личное дело инспектора</div><div class="rank">{rank(xp)}</div><div class="xp-value"><span>{xp.toLocaleString('ru-RU')} <small>очков опыта</small></span><span aria-hidden="true">✧</span></div><progress max={target} value={Math.min(xp, target)} aria-label="Опыт до следующего звания"/><p>{xp >= 1500 ? 'Высшее звание достигнуто' : `До следующего звания: ${target - xp} очков`}</p></section>; }

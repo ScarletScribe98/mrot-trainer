@@ -2,8 +2,9 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { makeActData } from '../act';
 import { ALL_LEVELS_XP, FINAL_LEVEL } from '../config';
 import { canOpenFinal, finishLevel, initialProgress, loadProgress, submitFinal, validateProgress } from '../game';
-import { applicableMinimum, formatAmount, selectBase, underpayment } from './index';
-import { checkFinalAnswers, formatAllowance, generateFinalSheet, newFinalDraft, type FinalDraft, type FinalSheet } from './final';
+import { formatAmount, selectBase } from './index';
+import { calculatePayroll, qualifyingPay, showMoney } from './payroll';
+import { checkFinalAnswers, formatAllowance, generateFinalSheet, generateLegacyFinalSheet, newFinalDraft, type FinalDraft, type FinalSheet } from './final';
 
 function solved(sheet: FinalSheet): FinalDraft {
   return {
@@ -29,9 +30,13 @@ describe('Расчёт финальной ведомости', () => {
       const base = selectBase(sheet.federal, sheet.regional);
       expect(sheet.base).toBe(base);
       for (const row of sheet.rows) {
-        expect(row.minimum).toBe(applicableMinimum(base, sheet.k, row.s));
-        expect(row.due).toBe(underpayment(row.salary, row.minimum));
+        const result = calculatePayroll(base, sheet.k, row.s, row.q, qualifyingPay(row.payments));
+        expect(row.minimum).toBe(showMoney(result.minimum));
+        expect(row.salary).toBe(showMoney(result.accrued));
+        expect(row.due).toBe(showMoney(result.due));
+        expect(row.violation).toBe(!result.complies);
       }
+      expect(new Set(sheet.rows.map(row => row.q))).toEqual(new Set(['1', '0.5', '0.75']));
       expect(sheet.total).toBe(sheet.rows.reduce((sum, row) => sum + row.due, 0));
       expect(checkFinalAnswers(sheet, solved(sheet))).toEqual([]);
     }
@@ -77,7 +82,7 @@ describe('Зачёт и сохранение итогового акта', () =>
     expect(signed.completed).toEqual([3, 4, FINAL_LEVEL]);
     expect(signed.xp).toBe(100 + ALL_LEVELS_XP);
     expect(signed.allLevelsBonusAwarded).toBe(true);
-    expect(signed.final.act).toEqual({ date: '2026-11-18', xp: 250, reward: 100, bonus: ALL_LEVELS_XP, cleanCases: 1 });
+    expect(signed.final.act).toEqual({ date: '2026-11-18', xp: 250, reward: 100, bonus: ALL_LEVELS_XP, cleanCases: 1, method: 5 });
     expect(submitFinal(signed, today)).toBe(signed);
     expect(finishLevel(signed, FINAL_LEVEL).xp).toBe(signed.xp);
     const data = makeActData(sheet, signed.final.act!, signed.final.draft.name);
@@ -102,6 +107,32 @@ describe('Зачёт и сохранение итогового акта', () =>
       expect(signed.final.act?.reward).toBe(reward);
       expect(signed.xp).toBe(reward + 150);
     }
+  });
+
+  it('обновляет лишь незаконченные расчёты и сохраняет старый подписанный акт', () => {
+    const progress = initialProgress();
+    progress.xp = 550;
+    progress.completed = [3];
+    progress.run.cards[0].answered = true;
+    progress.audit.cards[0].step = 'explanation';
+    progress.final.draft = { ...progress.final.draft, base: 'regional', total: '12', name: 'Ирина' };
+    const old = { ...progress, methodVersion: undefined };
+    vi.stubGlobal('localStorage', { getItem: () => JSON.stringify(old) });
+    const migrated = loadProgress();
+    expect(migrated.xp).toBe(550);
+    expect(migrated.completed).toEqual([3]);
+    expect(migrated.run.cards[0].answered).toBe(false);
+    expect(migrated.audit.cards[0].step).toBe('row');
+    expect(migrated.final.draft).toEqual({ ...newFinalDraft(), name: 'Ирина' });
+    expect(migrated.migrationNotice).toBe(true);
+    const act = { date: '2026-11-18', xp: 1350, reward: 100, bonus: 150, cleanCases: 11 };
+    old.final.act = act;
+    vi.stubGlobal('localStorage', { getItem: () => JSON.stringify(old) });
+    const archived = loadProgress();
+    expect(archived.final.act).toEqual(act);
+    const sheet = generateLegacyFinalSheet(archived.final.seed);
+    expect(sheet.total).toBe(340300);
+    expect(makeActData(sheet, archived.final.act!, archived.final.draft.name).columns[1]).toBe('Начислено');
   });
 
   it('загружает прежнее сохранение, имя и черновик без потери прошлых уровней', () => {

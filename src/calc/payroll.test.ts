@@ -1,6 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import { env } from 'node:process';
-import { writeFileSync } from 'node:fs';
 import raw from '../../docs/data/etalon_examples_v5.json?raw';
 import { parseAmount } from './index';
 import { calculatePayroll, chooseBase, fullMinimum, payment, qualifyingPay, showMoney, takeHome } from './payroll';
@@ -42,10 +40,7 @@ describe('Методичка v5, денежные эталоны', () => {
     }
     if (expectedCompliance !== undefined) expect(obtainedCompliance).toBe(expectedCompliance);
   });
-  it('охватывает ровно 19 эталонов', () => {
-    expect(auditRows).toHaveLength(19);
-    if (env.ETAP3_REFERENCE_REPORT) writeFileSync(env.ETAP3_REFERENCE_REPORT, JSON.stringify(auditRows, null, 2));
-  });
+  it('охватывает ровно 19 эталонов', () => expect(auditRows).toHaveLength(19));
 });
 
 describe('Точная арифметика и состав W', () => {

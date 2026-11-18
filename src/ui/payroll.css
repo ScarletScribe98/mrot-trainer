@@ -1,0 +1,16 @@
+.pay-lines { margin: 0; }
+.pay-line { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--paper-line); }
+.pay-line dt { font-size: 15px; }
+.pay-line dt small { display: block; color: var(--ink-muted); font-size: 14px; }
+.pay-line dd { margin: 0; }
+.pay-line .ruble { font-size: 1em; }
+.payment-details { font-size: 14px; }
+.payment-details summary { padding: 9px 1px; min-height: 44px; cursor: pointer; }
+.payment-details summary:focus-visible { outline-color: #365a40; }
+.hint .method-placeholder a { color: var(--accent); }
+.final-review .method-placeholder a { color: #384c39; }
+.inspection-panel .formula .topup-equation { font-size: clamp(16px,1.45vw,26px); line-height: 1.35; }
+@media (max-width:760px) {
+  .pay-line dt, .pay-line dd { font-size: 13px; }
+  .pay-line dt small { font-size: 12px; }
+}

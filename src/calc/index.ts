@@ -1,7 +1,7 @@
 /** Money is an integer number of kopecks; coefficients stay rational. */
 export type RoundingMode = 'half-up' | 'down';
 // Методичка v5, п. 5.1: половина копейки вверх.
-export const calculationConfig: { rounding: RoundingMode } = { rounding: 'half-up' };
+
 export function money(value: number): number {
   if (!Number.isSafeInteger(value) || value < 0) throw new RangeError('Сумма должна быть целым неотрицательным числом копеек');
   return value;
@@ -10,7 +10,7 @@ function safeNumber(value: bigint): number {
   if (value < 0n || value > BigInt(Number.MAX_SAFE_INTEGER)) throw new RangeError('Сумма выходит за безопасный диапазон');
   return Number(value);
 }
-export function roundMoney(numerator: bigint, denominator: bigint, mode: RoundingMode = calculationConfig.rounding): number {
+export function roundMoney(numerator: bigint, denominator: bigint, mode: RoundingMode = 'half-up'): number {
   if (numerator < 0n || denominator <= 0n) throw new RangeError('Недопустимая дробь');
   const whole = numerator / denominator;
   return safeNumber(whole + (mode === 'half-up' && (numerator % denominator) * 2n >= denominator ? 1n : 0n));
@@ -24,7 +24,7 @@ export function decimal(value: string | number): [bigint, bigint] {
 export function selectBase(federal: number, regional?: number | null): number {
   money(federal); return regional == null ? federal : Math.max(federal, money(regional));
 }
-export function applicableMinimum(B: number, k: string | number, s: string | number, rounding = calculationConfig.rounding): number {
+export function applicableMinimum(B: number, k: string | number, s: string | number, rounding: RoundingMode = 'half-up'): number {
   money(B); const [kn, kd] = decimal(k), [sn, sd] = decimal(s);
   return roundMoney(BigInt(B) * (kn * sd + sn * kd), kd * sd, rounding);
 }

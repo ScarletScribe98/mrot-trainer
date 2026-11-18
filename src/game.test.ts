@@ -1,8 +1,17 @@
 import { describe, it, expect } from 'vitest';
 import { initialProgress, submit, validateProgress, type Progress } from './game';
-import { generateTasks, underpayment, applicableMinimum, selectBase } from './calc';
-function answer(p: Progress) { const t = generateTasks(p.run.seed)[p.run.index]; const due = underpayment(t.salary, applicableMinimum(selectBase(t.federal, t.regional), t.k, t.s)); return submit(p, due > 0 ? 'yes' : 'no', due).progress; }
+import { showMoney } from './calc/payroll';
+import { assessWorker, generatePayrollTasks } from './calc/training';
+function answer(p: Progress) { const result = assessWorker(generatePayrollTasks(p.run.seed)[p.run.index]); return submit(p, result.complies ? 'no' : 'yes', showMoney(result.due)).progress; }
 describe('Зачёт карточек', () => {
+ it('сохраняет две неполные ставки, две выплаты вне W и три нарушения для каждого зерна', () => {
+  for (let seed = 0; seed < 50; seed++) {
+   const tasks = generatePayrollTasks(seed);
+   expect(tasks.filter(task => task.q !== '1')).toHaveLength(2);
+   expect(tasks.filter(task => task.payments.some(item => !item.inW))).toHaveLength(2);
+   expect(tasks.filter(task => !assessWorker(task).complies)).toHaveLength(3);
+  }
+ });
  it('начисляет 100 и не начисляет повторно', () => { const p = answer(initialProgress()); expect(p.xp).toBe(100); expect(answer(p).xp).toBe(100); });
  it('начисляет 70 после первой ошибки и 50 после разбора', () => { const first = submit(initialProgress(), 'no', null).progress; expect(first.run.cards[0].attempts).toBe(1); expect(answer(first).xp).toBe(70); const second = submit(first, 'no', null).progress; expect(second.run.cards[0].hint).toBe(true); expect(answer(second).xp).toBe(50); });
  it('подсказка стоит 50 даже без ошибки', () => { const p = initialProgress(); p.run.cards[0].hint = true; expect(answer(p).xp).toBe(50); });

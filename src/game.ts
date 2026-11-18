@@ -1,4 +1,5 @@
-import { generateTasks, applicableMinimum, selectBase, underpayment } from './calc';
+import { assessWorker, generatePayrollTasks } from './calc/training';
+import { showMoney } from './calc/payroll';
 import { AUDIT_SEED, checkAuditAnswer, type AuditAnswer, type AuditSheet } from './calc/audit';
 import { checkFinalAnswers, FINAL_SEED, generateFinalSheet, newFinalDraft, type FinalCell, type FinalDraft } from './calc/final';
 import { ALL_LEVELS_XP, AVAILABLE_LEVELS, FINAL_LEVEL } from './config';
@@ -8,7 +9,7 @@ export interface Run { seed: number; index: number; cards: CardState[]; streak: 
 export type AuditStep = AuditAnswer['step'];
 interface AuditCard extends CardState { step: AuditStep; }
 interface AuditRun extends Run { cards: AuditCard[]; }
-export interface InspectionAct { date: string; xp: number; reward: number; bonus: number; cleanCases: number; }
+export interface InspectionAct { date: string; xp: number; reward: number; bonus: number; cleanCases: number; method?: 5; }
 interface FinalRun {
  seed: number;
  attempts: number;
@@ -27,8 +28,10 @@ export interface Progress {
  audit: AuditRun;
  final: FinalRun;
  allLevelsBonusAwarded: boolean;
+ methodVersion: 5;
+ migrationNotice: boolean;
 }
-type AddedFields = 'audit' | 'final' | 'allLevelsBonusAwarded';
+type AddedFields = 'audit' | 'final' | 'allLevelsBonusAwarded' | 'methodVersion' | 'migrationNotice';
 type SavedProgress = Omit<Progress, AddedFields> & Partial<Pick<Progress, AddedFields>>;
 export const STORAGE_KEY = 'inspektor-truda-v1';
 export function newRun(seed = 73103): Run { return { seed, index: 0, cards: Array.from({ length: 5 }, () => ({ attempts: 0, hint: false, answered: false, reward: 0 })), streak: 0, earned: 0, completed: false }; }
@@ -41,16 +44,15 @@ function newFinalRun(): FinalRun {
 }
 export function initialProgress(): Progress {
  return { version: 1, xp: 0, completed: [], sound: true, music: false,
-  run: newRun(), audit: newAuditRun(), final: newFinalRun(), allLevelsBonusAwarded: false };
+  run: newRun(), audit: newAuditRun(), final: newFinalRun(), allLevelsBonusAwarded: false, methodVersion: 5, migrationNotice: false };
 }
 export function rank(xp: number): string { return xp >= 1500 ? 'Главный аудитор' : xp >= 800 ? 'Специалист по расчётам' : xp >= 300 ? 'Младший инспектор' : 'Стажёр'; }
 export function nextRank(xp: number): number { return [300, 800, 1500].find(n => n > xp) ?? 1500; }
 export function submit(progress: Progress, verdict: Verdict, amount: number | null): { progress: Progress; correct: boolean } {
  const run = progress.run, state = run.cards[run.index];
  if (state.answered || run.completed) return { progress, correct: true };
- const task = generateTasks(run.seed)[run.index];
- const due = underpayment(task.salary, applicableMinimum(selectBase(task.federal, task.regional), task.k, task.s));
- const correct = due > 0 ? verdict === 'yes' && amount === due : verdict === 'no';
+ const result = assessWorker(generatePayrollTasks(run.seed)[run.index]);
+ const correct = result.complies ? verdict === 'no' : verdict === 'yes' && amount === showMoney(result.due);
  const { card, reward, streak } = gradeCard(run, state, correct);
  return { correct, progress: { ...progress, xp: progress.xp + reward, run: { ...run, streak, earned: run.earned + reward, cards: run.cards.map((c, i) => i === run.index ? card : c) } } };
 }
@@ -130,7 +132,7 @@ export function submitFinal(progress: Progress, today = new Date()): Progress {
  const date = [today.getFullYear(), today.getMonth() + 1, today.getDate()].map(n => String(n).padStart(2, '0')).join('-');
  const cleanCards = [...progress.run.cards, ...progress.audit.cards].filter(card => card.answered && card.reward >= 100).length;
  return { ...completed, final: { ...final, issues: [], act: {
-  date, xp: completed.xp, reward, bonus, cleanCases: cleanCards + (reward === 100 ? 1 : 0),
+  date, xp: completed.xp, reward, bonus, method: 5, cleanCases: cleanCards + (reward === 100 ? 1 : 0),
  } } };
 }
 
@@ -156,7 +158,7 @@ function validateFinal(final: FinalRun): boolean {
   draft.rows.every(row => !!row && verdicts.includes(row.verdict) && text(row.amount, 32)) &&
   Array.isArray(issues) && issues.every(cell => cells.includes(cell)) &&
   (act === null || (!!act && typeof act.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(act.date) &&
-   integer(act.xp) && [50, 70, 100].includes(act.reward) && [0, ALL_LEVELS_XP].includes(act.bonus) && integer(act.cleanCases, 11)));
+   (act.method === undefined || act.method === 5) && integer(act.xp) && [50, 70, 100].includes(act.reward) && [0, ALL_LEVELS_XP].includes(act.bonus) && integer(act.cleanCases, 11)));
 }
 
 export function validateProgress(value: unknown): value is SavedProgress {
@@ -167,15 +169,31 @@ export function validateProgress(value: unknown): value is SavedProgress {
   (p.audit === undefined || (validateRun(p.audit) && p.audit.cards.every(c =>
    ['row', 'explanation', 'correction'].includes(c.step) && (!c.answered || c.step === 'correction')))) &&
   (p.allLevelsBonusAwarded === undefined || typeof p.allLevelsBonusAwarded === 'boolean') &&
-  (p.final === undefined || validateFinal(p.final));
+  (p.final === undefined || validateFinal(p.final)) &&
+  (p.methodVersion === undefined || p.methodVersion === 5) &&
+  (p.migrationNotice === undefined || typeof p.migrationNotice === 'boolean');
 }
 
 export function loadProgress(): Progress {
  try {
   const saved: unknown = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
-  return validateProgress(saved) ? {
+  if (!validateProgress(saved)) return initialProgress();
+  const progress: Progress = {
    ...saved, audit: saved.audit ?? newAuditRun(), final: saved.final ?? newFinalRun(),
-   allLevelsBonusAwarded: saved.allLevelsBonusAwarded ?? false,
-  } : initialProgress();
+   allLevelsBonusAwarded: saved.allLevelsBonusAwarded ?? false, methodVersion: 5,
+   migrationNotice: saved.migrationNotice ?? false,
+  };
+  if (saved.methodVersion === 5) return progress;
+  const { run, audit, final } = progress;
+  const resetRun = !run.completed && run.cards.some(card => card.answered || card.attempts || card.hint);
+  const resetAudit = !audit.completed && audit.cards.some(card => card.step !== 'row' || card.attempts || card.hint);
+  const draft = final.draft;
+  const resetFinal = !final.act && !!(final.attempts || final.hint || draft.base || draft.total || draft.conclusion ||
+   draft.rows.some(row => row.verdict || row.amount));
+  return {
+   ...progress, run: resetRun ? newRun(run.seed) : run, audit: resetAudit ? newAuditRun(audit.seed) : audit,
+   final: resetFinal ? { ...newFinalRun(), seed: final.seed, draft: { ...newFinalDraft(), name: draft.name } } : final,
+   migrationNotice: resetRun || resetAudit || resetFinal,
+  };
  } catch { return initialProgress(); }
 }
