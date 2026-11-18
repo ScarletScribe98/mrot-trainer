@@ -38,7 +38,7 @@ const explanations: Record<AuditError, string> = {
 };
 const misapplicationLabels = [
   'Базу умножили на k, затем на (1 + s)',
-  'Надбавку прибавили к сумме в рублях',
+  'Долю s прибавили как сумму в рублях',
   'В расчёте учли только районный коэффициент',
 ];
 
@@ -92,9 +92,14 @@ function makeSheet(profile: Task, index: number, error: AuditError, random: () =
     }
     case 'arithmetic': {
       row = random() < 0.5 ? 6 : 8;
-      const offset = (100 + Math.floor(random() * 1901)) * 100 * (random() < 0.5 ? -1 : 1);
-      if (row === 6) shown.minimum += offset;
-      else shown.due = Math.max(0, due + offset);
+      let rubles = 100 + Math.floor(random() * 1901);
+      const direction = random() < 0.5 ? -100 : 100;
+      if (row === 6) {
+        const otherErrors = misapplicationLabels.map((_, variant) => misappliedMinimum(task, base, variant));
+        // An arithmetic error must be distinguishable from the three incorrect formulas.
+        while (otherErrors.includes(minimum + rubles * direction)) rubles = rubles === 2000 ? 100 : rubles + 1;
+        shown.minimum += rubles * direction;
+      } else shown.due = Math.max(0, due + rubles * direction);
       break;
     }
     case 'rounding': {

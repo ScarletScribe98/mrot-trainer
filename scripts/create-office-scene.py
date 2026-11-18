@@ -8,12 +8,13 @@ def save(name,body,defs=''):
  (out/name).write_text(f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000"><defs>{defs}</defs>{body}</svg>',encoding='utf-8')
 # Distant office: bookcase with individually drawn file spines, panelling and a night window.
 room_defs='''<linearGradient id="wall" x2="0" y2="1"><stop stop-color="#07100e"/><stop offset="1" stop-color="#17231d"/></linearGradient><linearGradient id="wood" x2="1" y2="0"><stop stop-color="#111a13"/><stop offset=".45" stop-color="#2b3021"/><stop offset=".6" stop-color="#17231a"/><stop offset="1" stop-color="#080f0b"/></linearGradient><linearGradient id="night" x2="0" y2="1"><stop stop-color="#081720"/><stop offset="1" stop-color="#172b2a"/></linearGradient><filter id="distance"><feGaussianBlur stdDeviation="1.8"/></filter><radialGradient id="haze"><stop stop-color="#78927c" stop-opacity=".13"/><stop offset="1" stop-color="#405c4c" stop-opacity="0"/></radialGradient>'''
+file_styles='<style>.f>path:first-child{stroke:#4b5140;stroke-opacity:.2}.f>path:nth-child(2){stroke:#6c7154;stroke-width:.7;opacity:.25}.f>rect{fill:#959178;opacity:.12}</style>'
 files=[]
 for shelf,y in enumerate([95,260,425]):
  x=77
  for j in range(23):
   w=rng.randrange(11,25);h=rng.randrange(92,143);tone=rng.choice(['#26352a','#344031','#243429','#384433','#202f26'])
-  files.append(f'<g transform="translate({x} {y+145-h}) rotate({rng.choice([-3,0,0,1,2])})"><path d="M0 0h{w}v{h}H0Z" fill="{tone}" stroke="#4b5140" stroke-opacity=".2"/><path d="M3 7v{h-14}M5 12h{w-10}M5 {h-15}h{w-10}" stroke="#6c7154" stroke-width=".7" opacity=".25"/><rect x="4" y="28" width="{w-8}" height="27" fill="#959178" opacity=".12"/></g>');x+=w+3
+  files.append(f'<g class="f" transform="translate({x} {y+145-h}) rotate({rng.choice([-3,0,0,1,2])})"><path d="M0 0h{w}v{h}H0Z" fill="{tone}"/><path d="M3 7v{h-14}M5 12h{w-10}M5 {h-15}h{w-10}"/><rect x="4" y="28" width="{w-8}" height="27"/></g>');x+=w+3
 city=[]
 for x in range(1100,1580,31):
  y=rng.randrange(245,340);h=410-y
@@ -21,7 +22,7 @@ for x in range(1100,1580,31):
  for yy in range(y+12,400,17):
   if rng.random()<.45:city.append(f'<path d="M{x+6} {yy}h3m10 0h3" stroke="#9aab8e" stroke-width="2" opacity="{rng.choice([.15,.2,.28])}"/>')
 room='''<rect width="1600" height="1000" fill="url(#wall)"/><g filter="url(#distance)"><path d="M30 20h800v616H30Z" fill="url(#wood)"/><path d="M48 38h765v561H48Z" fill="#08100b"/>'''+''.join(files)+'''<path d="M38 79h784M38 246h784M38 411h784M38 577h784" stroke="#3b3f2b" stroke-width="12"/><path d="M43 254h773M43 419h773M43 585h773" stroke="#080f0b" stroke-width="5"/><path d="M57 25v597M805 25v597" stroke="#3d412d" stroke-width="16"/><path d="M850 28h5v559h-5Z" fill="#343c2e"/><path d="M888 0h15v600h-15Z" fill="#0a120e"/><path d="M1090 30h495v421h-495Z" fill="#060d0c"/><path d="M1105 44h464v389h-464Z" fill="url(#night)"/>'''+''.join(city)+'''<path d="M1104 432h470M1336 46v388M1105 225h465" stroke="#090f0d" stroke-width="13"/><path d="M1345 47v381M1107 232h460" stroke="#3b4b40" stroke-width="1" opacity=".5"/><path d="M1081 441h515v17h-515Z" fill="url(#wood)"/><path d="M1030 0h37v535h-37Z" fill="#121f17"/></g><ellipse cx="1270" cy="320" rx="480" ry="340" fill="url(#haze)"/>'''
-save('scene-room.svg',room,room_defs)
+save('scene-room.svg',file_styles+room,room_defs)
 # Midground: green baize desk with solid wood bevel and non-repeating grain.
 desk_defs='''<linearGradient id="felt" x1=".2" y1="0" x2=".8" y2="1"><stop stop-color="#253e2d"/><stop offset=".45" stop-color="#183123"/><stop offset="1" stop-color="#07170f"/></linearGradient><linearGradient id="edge" x2="0" y2="1"><stop stop-color="#343727"/><stop offset=".2" stop-color="#4b4931"/><stop offset=".35" stop-color="#1c271a"/><stop offset="1" stop-color="#070e09"/></linearGradient><pattern id="baize" width="7" height="7" patternUnits="userSpaceOnUse"><path d="M0 0 7 7M0 7 7 0" stroke="#758674" stroke-width=".4" opacity=".12"/></pattern><linearGradient id="desk-depth" x2="0" y2="1"><stop stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".45"/></linearGradient>'''
 grain=''.join(f'<path d="M-20 {y}Q{rng.randrange(300,700)} {y+rng.randrange(-20,20)} 1630 {y+rng.randrange(-8,8)}" stroke="#797353" stroke-width="{rng.choice([.35,.5,.7])}" opacity="{rng.choice([.03,.04,.07])}" fill="none"/>' for y in range(525,995,8))

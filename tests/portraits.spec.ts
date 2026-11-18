@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-const root='docs/screens/etap0_6_1';
+const root = process.env.PORTRAIT_SCREEN_ROOT || 'work/etap1/portrait-regression-screens';
 for(const viewport of [{width:1920,height:1080},{width:360,height:740}]) {
  test(`Растровая серия: титул и карточка ${viewport.width}`,async({page})=>{
   await page.setViewportSize(viewport);

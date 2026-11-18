@@ -5,8 +5,15 @@ root=Path(__file__).resolve().parents[1]
 asset_dir=root/'public'/'assets'
 asset_dir.mkdir(parents=True,exist_ok=True)
 random.seed(503)
-noise=''.join(f'<rect x="{random.randrange(96)}" y="{random.randrange(96)}" width="1" height="{random.choice([1,1,2])}" opacity="{random.choice([.25,.4,.6])}"/>' for _ in range(175))
-(asset_dir/'grain.svg').write_text(f'<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96"><g fill="currentColor">{noise}</g></svg>',encoding='utf-8')
+noise_css = 'rect{width:1px;height:1px}.t{height:2px}.a{opacity:.25}.b{opacity:.4}.c{opacity:.6}'
+def grain_mark():
+ x, y = random.randrange(96), random.randrange(96)
+ tall = random.choice([1,1,2]) == 2
+ tone = random.choice(['a','b','c'])
+ classes = tone + (' t' if tall else '')
+ return f'<rect x="{x}" y="{y}" class="{classes}"/>'
+noise=''.join(grain_mark() for _ in range(175))
+(asset_dir/'grain.svg').write_text(f'<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96"><style>{noise_css}</style><g fill="currentColor">{noise}</g></svg>',encoding='utf-8')
 parts=[]
 mask_holes=''.join(f'<circle cx="{random.randrange(6,394)}" cy="{random.randrange(6,94)}" r="{random.choice([.4,.7,1])}" fill="black"/>' for _ in range(150))
 defs=f'''<defs><pattern id="cloth" width="5" height="5" patternUnits="userSpaceOnUse"><path d="M0 0 5 5M0 5 5 0" stroke="currentColor" stroke-width=".4" opacity=".25"/></pattern><mask id="ink-print"><rect width="400" height="100" fill="white"/>{mask_holes}<path d="M5 8 130 7M295 92l91-1M6 50l1 17" stroke="black" stroke-width=".8"/></mask><radialGradient id="desk-glow"><stop stop-color="var(--lamp,#b8ccd0)" stop-opacity=".22"/><stop offset="1" stop-color="var(--lamp,#b8ccd0)" stop-opacity="0"/></radialGradient><linearGradient id="lamp-metal" x2="1" y2="1"><stop stop-color="var(--metal,#b5bebf)"/><stop offset=".4" stop-color="var(--metal-dark,#53616a)"/><stop offset=".7" stop-color="var(--metal,#b5bebf)"/><stop offset="1" stop-color="var(--metal-dark,#53616a)"/></linearGradient></defs>'''

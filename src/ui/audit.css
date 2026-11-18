@@ -65,3 +65,7 @@
   .audit-comparison :is(th, td) { padding-inline: 3px; }
   .audit-sheet-instruction { font-size: 13px; }
 }
+
+@media (min-width:1200px) {
+  .audit-screen .game-heading { justify-content: flex-start; column-gap: clamp(24px, 4vw, 64px); }
+}
