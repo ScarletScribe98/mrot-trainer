@@ -1,6 +1,6 @@
 /** Money is an integer number of kopecks; coefficients stay rational. */
 export type RoundingMode = 'half-up' | 'down';
-// TODO(Эрика): правило округления по методичке v5
+// Методичка v5, п. 5.1: половина копейки вверх.
 export const calculationConfig: { rounding: RoundingMode } = { rounding: 'half-up' };
 export function money(value: number): number {
   if (!Number.isSafeInteger(value) || value < 0) throw new RangeError('Сумма должна быть целым неотрицательным числом копеек');
