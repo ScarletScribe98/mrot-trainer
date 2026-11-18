@@ -1,9 +1,9 @@
 import { useState } from 'preact/hooks';
 import { formatAmount } from './calc';
 import { baseLabels, type BaseSource } from './calc/payroll';
-import { assessRegion, checkBasis, checkMinimum, checkTopup, drawRegions, federal, reasonLabels, regionCases, REGION_COUNT,
+import { assessRegion, checkBasis, checkMinimum, checkTopup, federal, reasonLabels, regionCases, REGION_COUNT,
   type RegionCase } from './data/real/study';
-import { attemptReward, countRegionalCases, gradeRegionalAttempt, newRegionalAttempt, regionalStepAttempts, requestRegionalKey,
+import { assignedRegions, attemptReward, countRegionalCases, gradeRegionalAttempt, newRegionalAttempt, regionalStepAttempts, requestRegionalKey,
   rewardLabel, submitRegional, type Progress, type RegionalAttempt } from './game';
 import { allowanceLabel, Button, Document, Folder, Hint, Icon, MethodNote, Money, PaymentLines, Stamp } from './ui/components';
 import { effect } from './audio';
@@ -145,12 +145,12 @@ function RegionalQuestion({ item, attempt, onAnswer, onBack, onKey, practice }: 
 
 export function LevelTwo({ progress, update, onBack }: Props) {
   const map = progress.study.map;
-  const assigned = drawRegions(map.seed);
+  const assigned = assignedRegions(progress);
   const done = progress.completed.includes(2);
   const [selected, setSelected] = useState<number | null>(null);
   const [practice, setPractice] = useState(false);
   const [review, setReview] = useState(newRegionalAttempt);
-  const completed = countRegionalCases(map, assigned);
+  const completed = countRegionalCases(progress, assigned);
   function returnToMap() {
     setSelected(null);
     window.scrollTo({ top: 0, behavior: 'instant' });

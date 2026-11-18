@@ -11,9 +11,10 @@ const rubles = (cents: number) => formatAmount(cents) + ' ₽';
 type ActSheet = Pick<FinalSheet, 'organization' | 'region' | 'total'> & {
   rows: Pick<FinalSheet['rows'][number], 'name' | 'salary' | 'minimum' | 'due'>[];
 };
-export function makeActData(sheet: ActSheet, act: InspectionAct, name: string) {
+export function makeActData(sheet: ActSheet, act: InspectionAct, name: string, variant?: number) {
   return {
     number: '001',
+    variant,
     columns: act.method === 5 ? payrollColumns : legacyColumns,
     date: act.date.split('-').reverse().join('.'),
     details: [
@@ -63,6 +64,7 @@ export async function saveActPng(act: ActData) {
   ctx.strokeRect(60, 60, 1480, 1300);
 
   text('УЧЕБНЫЙ АРХИВ  /  ДЕЛО № ' + act.number, 112, 135, 27, mono, mute);
+  if (act.variant !== undefined) text('Вариант № ' + act.variant, 750, 135, 27, mono, mute);
   ctx.textAlign = 'right';
   text(act.date, 1488, 135, 27, mono, mute);
   ctx.textAlign = 'left';

@@ -45,6 +45,7 @@ small { font-size: 14px; }
 .rank { font: 25px/1.2 var(--font-serif); margin-top: 10px; }
 .xp-value { display: flex; justify-content: space-between; font: 26px var(--font-mono); color: var(--accent); margin-top: 18px; align-items: center; gap: 10px; }
 .xp-value > :first-child { white-space: nowrap; }
+.variant-number { display: block; margin-top: 6px; color: var(--accent); font: 14px/1.4 var(--font-mono); white-space: nowrap; }
 progress { display: block; appearance: none; width: 100%; height: 3px; margin: 14px 0 9px; border: 0; background: var(--line); }
 progress::-webkit-progress-bar { background: var(--line); }
 progress::-webkit-progress-value { background: var(--accent); }
@@ -325,7 +326,9 @@ fieldset:disabled label { cursor: default; }
   .main-footer>span:last-child { font-size: 10px; }
   .main-footer .status-dot { margin-right: 6px; }
   .mobile-tools { display: flex; align-items: center; justify-content: space-between; gap: 7px; flex-wrap: wrap; padding: 5px 20px 10px; border-top: 1px solid var(--line); background: var(--bg); }
+  .mobile-tools { position: relative; z-index: 1; }
   .mobile-tools>span { font-size: 11px; color: var(--muted); }
+  .mobile-tools .variant-number { margin: 0 0 2px; font-size: 12px; }
   .mobile-tools .audio-toggles { border: 0; display: flex; padding: 0; gap: 0; }
   .mobile-tools .audio-toggles button { padding: 10px 6px; gap: 5px; font-size: 11px; width: auto; }
   .mobile-tools .audio-toggles button i { display: none; }

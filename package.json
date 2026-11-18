@@ -8,6 +8,7 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --host 127.0.0.1",
     "pack": "node scripts/pack.mjs",
+    "key": "node scripts/key.mjs",
     "test": "vitest run",
     "test:browser": "playwright test",
     "audit": "node scripts/audit.mjs",

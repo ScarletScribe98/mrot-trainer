@@ -26,7 +26,10 @@ export function ActScreen({ act, onBack }: { act: ActData; onBack: () => void })
     </div>
     {exportError && <p class="act-export-error" role="alert">Изображение сохранить не удалось. Повторите попытку или распечатайте акт.</p>}
     <Document class="act-paper">
-      <header class="act-paper-head"><span>Учебный архив / Дело № {act.number}</span><time>{act.date}</time></header>
+      <header class="act-paper-head">
+        <span>Учебный архив / Дело № {act.number}{act.variant !== undefined && <small>Вариант № {act.variant}</small>}</span>
+        <time>{act.date}</time>
+      </header>
       <h1 id="act-heading">Акт проверки № {act.number}</h1>
       <p class="act-disclaimer">{actDisclaimer}</p>
       <dl class="act-details">{act.details.map(([label, value]) =>

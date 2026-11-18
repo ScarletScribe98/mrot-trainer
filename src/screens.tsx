@@ -56,7 +56,7 @@ export function Levels({ progress, onHistory, onMap, onStart, onStartAudit, onSt
         </>}
         {i === 1 && <>
           <div class="level-open-meta">
-            <span>{regionalDone ? 'Пройдено' : `${countRegionalCases(progress.study.map)} / ${REGION_COUNT} дел к зачёту`}</span>
+            <span>{regionalDone ? 'Пройдено' : `${countRegionalCases(progress)} / ${REGION_COUNT} дел к зачёту`}</span>
           </div>
           {regionalDone ? <span class="level-achievement">Региональный эксперт</span>
             : <p class="level-next">После зачёта откроются все 10 дел для практики.</p>}

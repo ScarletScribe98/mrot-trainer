@@ -95,7 +95,7 @@ export function LevelFour({ progress, update, onBack, onReplay }: {
       <div class="result-stats"><div><strong>5 / 5</strong><span>листов проверено</span></div>
         <div><strong>+{audit.earned}</strong><span>очков за прохождение</span></div></div>
     </Document>
-    <div class="result-actions"><Button onClick={onReplay}>Новые ведомости<Icon name="arrow"/></Button>
+    <div class="result-actions"><Button onClick={onReplay}>{progress.variant === undefined ? 'Новые ведомости' : 'Повторить ведомости'}<Icon name="arrow"/></Button>
       <Button variant="secondary" onClick={onBack}>Вернуться в архив</Button></div>
   </section>;
   return <AuditCase key={audit.index} progress={progress} update={update} onBack={onBack}/>;

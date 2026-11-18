@@ -43,14 +43,23 @@ export const reasonLabels: Record<Reason, string> = {
   refusal: 'Если действует соглашение о МЗ, работодатель направил отказ',
 };
 
-export function drawRegions(seed: number) {
+export function drawRegions(seed: number, mixed = false) {
   const ids = regionCases.map(item => item.id);
   const random = mulberry32(seed);
   for (let i = ids.length - 1; i > 0; i--) {
     const j = Math.floor(random() * (i + 1));
     [ids[i], ids[j]] = [ids[j], ids[i]];
   }
-  return ids.slice(0, REGION_COUNT);
+  const assigned = ids.slice(0, REGION_COUNT);
+  if (mixed) {
+    const complies = (id: number) => assessRegion(regionCases[id - 1]).complies;
+    const first = complies(assigned[0]);
+    if (assigned.every(id => complies(id) === first)) {
+      const alternate = ids.slice(REGION_COUNT).find(id => complies(id) !== first);
+      if (alternate !== undefined) assigned[REGION_COUNT - 1] = alternate;
+    }
+  }
+  return assigned;
 }
 
 export function assessRegion(item: RegionCase) {

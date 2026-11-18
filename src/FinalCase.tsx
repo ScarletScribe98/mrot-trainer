@@ -121,7 +121,8 @@ export function FinalCase({ progress, update, onBack, onSigned }: {
           <div class="document-top"><span>Форма 05 / Расчётная ведомость</span><span>№ 001</span></div>
           <div class="final-organization">
             <div><h2>{sheet.organization}</h2><p>Учебный регион · {sheet.region}</p></div>
-            <div><p>{sheet.period}</p><p>Районный коэффициент k <strong>{sheet.k.replace('.', ',')}</strong></p></div>
+            <div>{progress.variant !== undefined && <p><strong>Вариант № {progress.variant}</strong></p>}
+              <p>{sheet.period}</p><p>Районный коэффициент k <strong>{sheet.k.replace('.', ',')}</strong></p></div>
           </div>
           <fieldset class={'final-base' + (invalidBase ? ' final-field--invalid' : '')}>
             <legend>Общая база B для организации</legend>

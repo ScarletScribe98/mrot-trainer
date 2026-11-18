@@ -4,6 +4,7 @@ import { AUDIT_SEED, checkAuditAnswer, type AuditAnswer, type AuditSheet } from 
 import { checkFinalAnswers, FINAL_SEED, generateFinalSheet, newFinalDraft, type FinalCell, type FinalDraft } from './calc/final';
 import { ALL_LEVELS_XP, AVAILABLE_LEVELS, FINAL_LEVEL } from './config';
 import { drawRegions, historyPairs, MAP_SEED, regionCases } from './data/real/study';
+import { isVariant, variantSeeds } from './variants';
 export type Verdict = 'yes' | 'no';
 export interface CardState { attempts: number; hint: boolean; answered: boolean; reward: number; }
 export interface Run { seed: number; index: number; cards: CardState[]; streak: number; earned: number; completed: boolean; }
@@ -31,12 +32,13 @@ interface Study {
  map: { seed: number; cases: RegionalAttempt[] };
 }
 export function newRegionalAttempt(): RegionalAttempt { return { step: 0, attempts: 0, wrong: false }; }
-function newStudy(): Study {
+function newStudy(seed = MAP_SEED): Study {
  return { history: { turn: 0, attempts: 0, accepted: false },
-  map: { seed: MAP_SEED, cases: regionCases.map(newRegionalAttempt) } };
+  map: { seed, cases: regionCases.map(newRegionalAttempt) } };
 }
 export interface Progress {
  version: 1;
+ variant?: number;
  xp: number;
  completed: number[];
  sound: boolean;
@@ -57,12 +59,15 @@ export function newAuditRun(seed = AUDIT_SEED): AuditRun {
  const run = newRun(seed);
  return { ...run, cards: run.cards.map(card => ({ ...card, step: 'row' })) };
 }
-function newFinalRun(): FinalRun {
- return { seed: FINAL_SEED, attempts: 0, hint: false, draft: newFinalDraft(), issues: [], act: null };
+function newFinalRun(seed = FINAL_SEED): FinalRun {
+ return { seed, attempts: 0, hint: false, draft: newFinalDraft(), issues: [], act: null };
 }
-export function initialProgress(): Progress {
+export function initialProgress(variant?: number): Progress {
+ const seeds = variant === undefined ? undefined : variantSeeds(variant);
  return { version: 1, xp: 0, completed: [], sound: true, music: false,
-  run: newRun(), audit: newAuditRun(), final: newFinalRun(), allLevelsBonusAwarded: false, methodVersion: 5, migrationNotice: false, study: newStudy() };
+  ...(variant === undefined ? {} : { variant }),
+  run: newRun(seeds?.workers), audit: newAuditRun(seeds?.audit), final: newFinalRun(seeds?.final),
+  allLevelsBonusAwarded: false, methodVersion: 5, migrationNotice: false, study: newStudy(seeds?.map) };
 }
 export function rank(xp: number): string { return xp >= 1500 ? 'Главный аудитор' : xp >= 800 ? 'Специалист по расчётам' : xp >= 300 ? 'Младший инспектор' : 'Стажёр'; }
 export function nextRank(xp: number): number { return [300, 800, 1500].find(n => n > xp) ?? 1500; }
@@ -150,8 +155,12 @@ export function regionalStepAttempts(state: RegionalAttempt): number {
  return state.stepAttempts ?? (state.wrong ? state.attempts : 0);
 }
 
-export function countRegionalCases(map: Study['map'], assigned = drawRegions(map.seed)): number {
- return assigned.filter(id => map.cases[id - 1].step === 3).length;
+export function assignedRegions(progress: Progress): number[] {
+ return drawRegions(progress.study.map.seed, progress.variant !== undefined);
+}
+
+export function countRegionalCases(progress: Progress, assigned = assignedRegions(progress)): number {
+ return assigned.filter(id => progress.study.map.cases[id - 1].step === 3).length;
 }
 
 export function gradeRegionalAttempt(state: RegionalAttempt, correct: boolean): RegionalAttempt {
@@ -164,20 +173,20 @@ export function requestRegionalKey(p: Progress, id: number, step: number): Progr
  const { map } = p.study;
  const state = map.cases[id - 1];
  if (p.completed.includes(2) || !state || state.hint || state.step !== step ||
-  regionalStepAttempts(state) < 2 || !drawRegions(map.seed).includes(id)) return p;
+  regionalStepAttempts(state) < 2 || !assignedRegions(p).includes(id)) return p;
  const cases = map.cases.map((item, i) => i === id - 1 ? { ...state, hint: true } : item);
  return { ...p, study: { ...p.study, map: { ...map, cases } } };
 }
 
 export function submitRegional(p: Progress, id: number, correct: boolean): Progress {
  const map = p.study.map;
- const assigned = drawRegions(map.seed);
+ const assigned = assignedRegions(p);
  if (!assigned.includes(id) || map.cases[id - 1].step >= 3) return p;
  const next = gradeRegionalAttempt(map.cases[id - 1], correct);
  const cases = map.cases.map((state, i) => i === id - 1 ? next : state);
  const xp = next.step === 3 ? attemptReward({ attempts: next.attempts, hint: next.hint ?? false }) : 0;
  const updated = { ...p, xp: p.xp + xp, study: { ...p.study, map: { ...map, cases } } };
- return countRegionalCases(updated.study.map, assigned) === assigned.length ? finishLevel(updated, 2) : updated;
+ return countRegionalCases(updated, assigned) === assigned.length ? finishLevel(updated, 2) : updated;
 }
 
 export function canOpenFinal(progress: Progress) {
@@ -248,6 +257,7 @@ export function validateProgress(value: unknown): value is SavedProgress {
  if (!value || typeof value !== 'object') return false;
  const p = value as SavedProgress;
  return p.version === 1 && integer(p.xp) && Array.isArray(p.completed) && p.completed.every(n => AVAILABLE_LEVELS.includes(n)) &&
+  (p.variant === undefined || isVariant(p.variant)) &&
   typeof p.sound === 'boolean' && typeof p.music === 'boolean' && validateRun(p.run) &&
   (p.audit === undefined || (validateRun(p.audit) && p.audit.cards.every(c =>
    ['row', 'explanation', 'correction'].includes(c.step) && (!c.answered || c.step === 'correction')))) &&
@@ -258,26 +268,27 @@ export function validateProgress(value: unknown): value is SavedProgress {
   (p.study === undefined || validateStudy(p.study));
 }
 
-export function loadProgress(): Progress {
+export function loadProgress(create: () => Progress = initialProgress): Progress {
+ let saved: unknown;
  try {
-  const saved: unknown = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
-  if (!validateProgress(saved)) return initialProgress();
-  const progress: Progress = {
-   ...saved, audit: saved.audit ?? newAuditRun(), final: saved.final ?? newFinalRun(),
-   allLevelsBonusAwarded: saved.allLevelsBonusAwarded ?? false, methodVersion: 5,
-   migrationNotice: saved.migrationNotice ?? false, study: saved.study ?? newStudy(),
-  };
-  if (saved.methodVersion === 5) return progress;
-  const { run, audit, final } = progress;
-  const resetRun = !run.completed && run.cards.some(card => card.answered || card.attempts || card.hint);
-  const resetAudit = !audit.completed && audit.cards.some(card => card.step !== 'row' || card.attempts || card.hint);
-  const draft = final.draft;
-  const resetFinal = !final.act && !!(final.attempts || final.hint || draft.base || draft.total || draft.conclusion ||
-   draft.rows.some(row => row.verdict || row.amount));
-  return {
-   ...progress, run: resetRun ? newRun(run.seed) : run, audit: resetAudit ? newAuditRun(audit.seed) : audit,
-   final: resetFinal ? { ...newFinalRun(), seed: final.seed, draft: { ...newFinalDraft(), name: draft.name } } : final,
-   migrationNotice: resetRun || resetAudit || resetFinal,
-  };
- } catch { return initialProgress(); }
+  saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+ } catch { return create(); }
+ if (!validateProgress(saved)) return create();
+ const progress: Progress = {
+  ...saved, audit: saved.audit ?? newAuditRun(), final: saved.final ?? newFinalRun(),
+  allLevelsBonusAwarded: saved.allLevelsBonusAwarded ?? false, methodVersion: 5,
+  migrationNotice: saved.migrationNotice ?? false, study: saved.study ?? newStudy(),
+ };
+ if (saved.methodVersion === 5) return progress;
+ const { run, audit, final } = progress;
+ const resetRun = !run.completed && run.cards.some(card => card.answered || card.attempts || card.hint);
+ const resetAudit = !audit.completed && audit.cards.some(card => card.step !== 'row' || card.attempts || card.hint);
+ const draft = final.draft;
+ const resetFinal = !final.act && !!(final.attempts || final.hint || draft.base || draft.total || draft.conclusion ||
+  draft.rows.some(row => row.verdict || row.amount));
+ return {
+  ...progress, run: resetRun ? newRun(run.seed) : run, audit: resetAudit ? newAuditRun(audit.seed) : audit,
+  final: resetFinal ? { ...newFinalRun(final.seed), draft: { ...newFinalDraft(), name: draft.name } } : final,
+  migrationNotice: resetRun || resetAudit || resetFinal,
+ };
 }
