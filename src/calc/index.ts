@@ -15,7 +15,7 @@ export function roundMoney(numerator: bigint, denominator: bigint, mode: Roundin
   const whole = numerator / denominator;
   return safeNumber(whole + (mode === 'half-up' && (numerator % denominator) * 2n >= denominator ? 1n : 0n));
 }
-function decimal(value: string | number): [bigint, bigint] {
+export function decimal(value: string | number): [bigint, bigint] {
   const text = String(value).replace(',', '.');
   if (!/^\d+(?:\.\d{1,6})?$/.test(text)) throw new RangeError('Коэффициент должен быть неотрицательной десятичной дробью');
   const [whole, fraction = ''] = text.split('.');
@@ -24,9 +24,9 @@ function decimal(value: string | number): [bigint, bigint] {
 export function selectBase(federal: number, regional?: number | null): number {
   money(federal); return regional == null ? federal : Math.max(federal, money(regional));
 }
-export function applicableMinimum(B: number, k: string | number, s: string | number): number {
+export function applicableMinimum(B: number, k: string | number, s: string | number, rounding = calculationConfig.rounding): number {
   money(B); const [kn, kd] = decimal(k), [sn, sd] = decimal(s);
-  return roundMoney(BigInt(B) * (kn * sd + sn * kd), kd * sd);
+  return roundMoney(BigInt(B) * (kn * sd + sn * kd), kd * sd, rounding);
 }
 export function underpayment(salary: number, minimum: number): number { return Math.max(0, money(minimum) - money(salary)); }
 export function parseAmount(text: string): number | null {
