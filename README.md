@@ -73,7 +73,9 @@ npm run licenses
 
 `vite.config.ts` использует относительный base `./` по умолчанию, переопределяемый через `BASE_PATH`. Hash-навигация не требует серверных правил перенаправления. Поддерживается подпапка репозитория.
 
-`.github/workflows/deploy.yml` подготовлен, но запускается **только вручную** через `workflow_dispatch`. После отдельного решения о публикации понадобится создать репозиторий, отправить код и включить Settings → Pages → GitHub Actions. Workflow сам выбирает `/<имя-репозитория>/`, а для `<владелец>.github.io` — `/`. Деплой в этой работе не выполнялся.
+`.github/workflows/pages.yml` запускается вручную через `workflow_dispatch` и собирает сайт для `/mrot-trainer/`. Перед первым запуском выберите **Settings → Pages → Source → GitHub Actions** в репозитории `mrot-trainer`.
+
+Для локальной раздачи выполните `npm run build` с базой по умолчанию, затем `npm run pack`. Скрипт сохраняет ZIP в `work/mrot-trainer-dist.zip` и использует системный `tar.exe` на Windows или `zip` на Linux и macOS. См. [инструкцию для аудитории](docs/ZAPUSK_V_AUDITORII.md).
 
 ## Ограничения
 
