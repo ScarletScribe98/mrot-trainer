@@ -146,7 +146,7 @@ for (const viewport of viewports) {
     await expect(row(page, first.row)).toHaveAttribute('aria-pressed', 'true');
     await explain(page, first.explanation);
     await correctValue(page, first);
-    await expect(page.getByText('+100 очков опыта')).toBeVisible();
+    await expect(page.getByText('+100 XP (с первой попытки)', { exact: true })).toBeVisible();
     await capture(page, '05-stamp', viewport.width === 360 ? '.audit-notes' : '.audit-screen');
     await page.reload();
     await expect(page.getByText('Ошибка найдена', { exact: true })).toBeVisible();
@@ -178,7 +178,7 @@ for (const viewport of viewports) {
     await expect(reference).toHaveURL(/method-v5\.html#p5-2$/);
     await reference.close();
     await solve(page);
-    await expect(page.getByText('+50 очков опыта')).toBeVisible();
+    await expect(page.getByText('+50 XP (с подсказкой)', { exact: true })).toBeVisible();
 
     await page.goto('/#levels');
     await expect(auditCard.getByText('2/5', { exact: true })).toBeVisible();
@@ -194,7 +194,8 @@ for (const viewport of viewports) {
     }
     expect(new Set(methods).size).toBe(5);
     expect(methods).toEqual(expect.arrayContaining(Object.keys(auditShots)));
-    await expect(page.getByText('+150 очков опыта')).toBeVisible();
+    await expect(page.getByText('+100 XP (с первой попытки)', { exact: true })).toBeVisible();
+    await expect(page.getByText('Ещё +50 XP за серию из трёх.', { exact: true })).toBeVisible();
     await page.getByRole('button', { name: 'Подвести итоги' }).click();
     await expect(page.getByRole('heading', { name: 'Пять ведомостей проверены' })).toBeVisible();
     await page.reload();

@@ -11,7 +11,7 @@ export function hundredths(text: string) {
 }
 
 export function allowance(text: string) {
-  return BigInt(text.split(' %')[0]);
+  return text.trim() === 'нет (0)' ? 0n : BigInt(text.split(' %')[0]);
 }
 
 export function halfUp(numerator: bigint, denominator: bigint) {
