@@ -1,21 +1,10 @@
 import { test, expect, type Page } from '@playwright/test';
+import { workerDue } from './payroll-helpers';
 const key = 'inspektor-truda-v1';
 async function stored(page: Page) { return page.evaluate(key => JSON.parse(localStorage.getItem(key)!), key); }
-function cents(text: string) { return BigInt(text.replace(/[^0-9,]/g, '').replace(',', '')); }
-async function expectedDue(page: Page) {
- const rows = page.locator('.data-table dd');
- const federal = cents(await rows.nth(0).innerText());
- const regionalText = await rows.nth(1).innerText();
- const regional = regionalText.includes('Не установлен') ? 0n : cents(regionalText);
- const k = BigInt((await rows.nth(2).innerText()).replace(',', ''));
- const s = BigInt((await rows.nth(3).innerText()).split(' %')[0]);
- const base = federal > regional ? federal : regional;
- const minimum = (base * (k + s) + 50n) / 100n;
- const salary = cents(await page.locator('.salary-row strong').innerText());
- return minimum > salary ? minimum - salary : 0n;
-}
+
 async function correct(page: Page) {
- const due = await expectedDue(page);
+ const due = await workerDue(page);
  await page.getByRole('radio', { name: due > 0n ? 'Есть нарушение' : 'Нарушения нет', exact: true }).check();
  if (due > 0n) await page.getByLabel('Сумма недоплаты', { exact: true }).fill(`${due / 100n},${String(due % 100n).padStart(2, '0')}`);
  await page.getByRole('button', { name: 'Завершить проверку', exact: true }).click();
@@ -53,7 +42,7 @@ for (const viewport of [{ width: 1920, height: 1080 }, { width: 360, height: 740
   await page.getByRole('radio', { name: 'Нарушения нет', exact: true }).check();
   await page.getByRole('button', { name: 'Завершить проверку', exact: true }).click();
   await expect(page.getByRole('complementary', { name: 'Пошаговый разбор', exact: true })).toBeVisible();
-  await expect(page.locator('.hint')).not.toContainText(String((await expectedDue(page)) / 100n));
+  await expect(page.locator('.hint')).not.toContainText(String((await workerDue(page)) / 100n));
   await shot(page, '05-walkthrough', viewport.width, '.hint--detailed');
   await correct(page);
   await shot(page, '06-stamp', viewport.width, '.accepted');

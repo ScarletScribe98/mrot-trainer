@@ -1,15 +1,11 @@
 import { test, expect, type Page } from '@playwright/test';
+import { captureV5, workerDue } from './payroll-helpers';
 const key='inspektor-truda-v1';
 const screenRoot=process.env.SCENE_SCREEN_ROOT || 'work/etap0_6_1-regression-screens';
 async function saved(page:Page){return page.evaluate(key=>JSON.parse(localStorage.getItem(key)!),key);}
-function cents(text:string){return BigInt(text.replace(/[^0-9,]/g,'').replace(',',''));}
+
 async function correct(page:Page){
- const rows=await page.locator('.data-table dd').allTextContents();
- const a=cents(rows[0]),b=rows[1].includes('Не установлен')?0n:cents(rows[1]);
- const total=BigInt(rows[2].replace(',',''))+BigInt(rows[3].split(' %')[0]);
- const min=((a>b?a:b)*total+50n)/100n;
- const salary=cents(await page.locator('.salary-row strong').innerText());
- const due=min>salary?min-salary:0n;
+ const due=await workerDue(page);
  await page.getByRole('radio',{name:due?'Есть нарушение':'Нарушения нет',exact:true}).check();
  if(due)await page.getByLabel('Сумма недоплаты',{exact:true}).fill(`${due/100n},${String(due%100n).padStart(2,'0')}`);
  await page.getByRole('button',{name:'Завершить проверку',exact:true}).click();
@@ -51,6 +47,9 @@ for(const viewport of [{width:1920,height:1080},{width:360,height:740}])test(`К
  await expect(page.locator('.level-art')).toHaveCount(5);
  await page.getByRole('button',{name:'Открыть дело',exact:true}).click();
  await capture(page,'03-question',viewport.width,'.inspection-panel');
+ await expect(page.locator('.data-table dd').nth(4)).toHaveText('0,5');
+ await expect(page.locator('.pay-line[data-kind=night]')).toContainText('Сверх минимума');
+ await captureV5(page, '01-card-q-w', viewport.width === 360 ? '.data-table' : '.document-stage', true);
  await page.getByRole('radio',{name:'Нарушения нет',exact:true}).check();
  await page.getByRole('button',{name:'Завершить проверку',exact:true}).click();
  await expect(page.getByRole('complementary',{name:'Подсказка',exact:true})).toBeVisible();

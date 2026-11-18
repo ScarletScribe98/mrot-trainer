@@ -2,6 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { formatAmount } from '../src/calc';
 import { PRECACHE_BUDGET_BYTES } from '../src/config';
+import { allowance, captureV5, cents, displayedW, expectedPayroll, halfUp, hundredths } from './payroll-helpers';
 
 const storageKey = 'inspektor-truda-v1';
 const screenshots = process.env.AUDIT_SCREEN_ROOT;
@@ -15,27 +16,43 @@ async function saved(page: Page) {
   return page.evaluate(key => JSON.parse(localStorage.getItem(key)!), storageKey);
 }
 
-function cents(text: string): number {
-  const [rubles, fraction] = text.trim().split(',').map(part => Number(part.replace(/[^\d]/g, '')));
-  return rubles * 100 + (fraction ?? 0);
-}
-
 async function correctAnswer(page: Page) {
   const values = await page.locator('.audit-row-value').allTextContents();
   const [federal, regional, displayedBase] = values.slice(0, 3).map(cents);
-  const k = Number(values[3].replace(',', ''));
-  const s = Number(values[4].split(' %')[0]);
-  const [displayedMinimum, salary, displayedDue] = values.slice(5, 8).map(cents);
-  const base = Math.max(federal, regional);
-  const minimum = Math.round(base * (k + s) / 100);
-  const due = Math.max(0, minimum - salary);
+  const k = hundredths(values[3]), s = allowance(values[4]), q = hundredths(values[5]);
+  const [shownW, shownFull, shownMinimum, shownAccrued, shownDue] = values.slice(6, 11).map(cents);
+  const base = federal > regional ? federal : regional;
+  const w = await displayedW(page.locator('.audit-sheet'));
+  const expected = expectedPayroll(base, k, s, q, w);
+  const rubles = (amount: bigint) => formatAmount(Number(amount)) + ' ₽';
   if (base !== displayedBase) return { row: 3, explanation: 'wrong_base', value: base === federal ? 'federal' : 'regional' };
-  if (minimum !== displayedMinimum) {
-    const alternatives = [Math.round(base * k * (100 + s) / 10000), Math.round(base * k / 100) + s, Math.round(base * k / 100)];
-    return { row: 6, explanation: alternatives.includes(displayedMinimum) ? 'k_s_misapplied' : 'arithmetic', value: formatAmount(minimum) + ' ₽' };
+  if (w !== shownW) return { row: 7, explanation: 'w_includes_excluded', value: rubles(w) };
+  if (expected.full !== shownFull) {
+    const variants = [halfUp(base * k * (100n + s), 10000n), halfUp(base * k, 100n) + s, halfUp(base * k, 100n)];
+    return { row: 8, explanation: variants.includes(shownFull) ? 'k_s_misapplied' : 'arithmetic', value: rubles(expected.full) };
   }
-  expect(displayedDue).not.toBe(due);
-  return { row: 8, explanation: 'arithmetic', value: formatAmount(due) + ' ₽' };
+  if (expected.minimum !== shownMinimum) {
+    const rateIgnored = shownMinimum === expected.full;
+    if (!rateIgnored) expect(expected.minimum - shownMinimum).toBe(1n);
+    return { row: 9, explanation: rateIgnored ? 'rate_ignored' : 'rounding', value: rubles(expected.minimum) };
+  }
+  expect(shownAccrued).toBe(expected.accrued);
+  expect(shownDue).not.toBe(expected.due);
+  return { row: 11, explanation: shownDue === 0n ? 'coef_in_minimum' : 'arithmetic', value: rubles(expected.due) };
+}
+
+const auditShots: Record<string, string> = {
+  w_includes_excluded: '02-audit-w',
+  rate_ignored: '03-audit-rate',
+  coef_in_minimum: '04-audit-coef',
+  rounding: '05-audit-rounding',
+};
+async function captureError(page: Page, answer: Awaited<ReturnType<typeof correctAnswer>>) {
+  const name = auditShots[answer.explanation];
+  if (!name || !process.env.ETAP3_SCREEN_ROOT) return;
+  if (answer.explanation === 'w_includes_excluded') await page.locator('.audit-sheet summary').click();
+  await captureV5(page, name, page.viewportSize()!.width === 360
+    ? '.audit-row[data-row="' + answer.row + '"]' : '.audit-sheet', true);
 }
 
 async function explain(page: Page, id: string) {
@@ -53,6 +70,7 @@ async function correctValue(page: Page, answer: Awaited<ReturnType<typeof correc
 async function solve(page: Page) {
   const answer = await correctAnswer(page);
   await row(page, answer.row).click();
+  await captureError(page, answer);
   await explain(page, answer.explanation);
   await correctValue(page, answer);
   return answer;
@@ -108,7 +126,7 @@ for (const viewport of viewports) {
 
     await auditCard.getByRole('button', { name: 'Открыть ведомость' }).click();
     await expect(page.getByRole('heading', { name: 'Аудит ведомости', exact: true })).toBeVisible();
-    await expect(page.locator('.audit-row')).toHaveCount(9);
+    await expect(page.locator('.audit-row')).toHaveCount(12);
     expect(await page.locator('.audit-row').evaluateAll(rows => rows.every(el => parseFloat(getComputedStyle(el).height) >= 44))).toBe(true);
     await capture(page, '02-sheet', viewport.width === 360 ? '.audit-sheet' : '.audit-screen');
     const first = await correctAnswer(page);
@@ -120,7 +138,8 @@ for (const viewport of viewports) {
 
     await row(page, first.row).click();
     await expect(row(page, first.row)).toHaveAttribute('aria-pressed', 'true');
-    await expect(page.getByRole('radio')).toHaveCount(3);
+    await expect(page.getByRole('radio')).toHaveCount(4);
+    await captureError(page, first);
     await capture(page, '03-explanation', viewport.width === 360 ? '.audit-notes' : '.audit-screen');
     await page.reload();
     await expect(page.getByRole('heading', { name: 'Объясните ошибку' })).toBeVisible();
@@ -135,14 +154,15 @@ for (const viewport of viewports) {
 
     await page.getByRole('button', { name: 'Следующий лист' }).click();
     const second = await correctAnswer(page);
-    await row(page, 9).click();
+    await row(page, 12).click();
     const hint = page.getByRole('complementary', { name: 'Подсказка', exact: true });
     await expect(hint).toBeVisible();
     await expect(page.getByRole('complementary', { name: 'Пошаговый разбор' })).toHaveCount(0);
-    await row(page, 9).click();
+    await row(page, 12).click();
     const walkthrough = page.getByRole('complementary', { name: 'Пошаговый разбор' });
     await expect(walkthrough).toBeVisible();
-    await expect(walkthrough.getByRole('link', { name: 'Повторить: раздел о применимом минимуме' })).toHaveAttribute('aria-disabled', 'true');
+    const method = walkthrough.getByRole('link', { name: 'Часть 5, п. 5.2', exact: true });
+    await expect(method).toHaveAttribute('href', /method-v5\.html#p5-2$/);
     await expect(walkthrough.getByRole('table')).toBeHidden();
     await expect(page.getByText('Ошибка найдена', { exact: true })).toHaveCount(0);
     await page.reload();
@@ -151,6 +171,12 @@ for (const viewport of viewports) {
     await expect(walkthrough.getByRole('table')).toBeVisible();
     await expect(walkthrough.locator('.audit-comparison-error')).toContainText('Первая ошибка');
     await capture(page, '04-walkthrough', viewport.width === 360 ? '.hint--detailed' : '.audit-screen');
+    await captureV5(page, '06-audit-review', viewport.width === 360 ? '.hint--detailed' : '.audit-sheet', true);
+    await context.setOffline(true);
+    const [reference] = await Promise.all([page.waitForEvent('popup'), method.click()]);
+    await expect(reference.locator('#p5-2 h2')).toContainText('Типичные ошибки');
+    await expect(reference).toHaveURL(/method-v5\.html#p5-2$/);
+    await reference.close();
     await solve(page);
     await expect(page.getByText('+50 очков опыта')).toBeVisible();
 
@@ -166,7 +192,8 @@ for (const viewport of viewports) {
       await page.getByRole('button', { name: 'Следующий лист' }).click();
       methods.push((await solve(page)).explanation);
     }
-    expect(new Set(methods).size).toBe(3);
+    expect(new Set(methods).size).toBe(5);
+    expect(methods).toEqual(expect.arrayContaining(Object.keys(auditShots)));
     await expect(page.getByText('+150 очков опыта')).toBeVisible();
     await page.getByRole('button', { name: 'Подвести итоги' }).click();
     await expect(page.getByRole('heading', { name: 'Пять ведомостей проверены' })).toBeVisible();

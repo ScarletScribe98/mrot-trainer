@@ -2,14 +2,12 @@ import { expect, test, type Page } from '@playwright/test';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { formatAmount } from '../src/calc';
 import { initialProgress, STORAGE_KEY, type Progress } from '../src/game';
+import { allowance, captureV5, cents, displayedW, expectedPayroll, hundredths } from './payroll-helpers';
 
 const shots = process.env.FINAL_SCREEN_ROOT;
 const viewports = [{ width: 1920, height: 1080 }, { width: 360, height: 740 }];
 
-function cents(text: string) {
-  const [whole, fraction] = text.split(',').map(part => Number(part.replace(/\D/g, '')));
-  return whole * 100 + (fraction ?? 0);
-}
+
 
 async function prepare(page: Page, completed: number[] = [3, 4]) {
   const progress = initialProgress();
@@ -36,15 +34,20 @@ async function saved(page: Page): Promise<Progress> {
 
 async function readWorksheet(page: Page) {
   const [mrot, regional] = (await page.locator('.final-base .money').allTextContents()).map(cents);
-  const k = Number((await page.locator('.final-organization strong').innerText()).replace(',', ''));
-  const salaries = (await page.locator('.final-salary .money').allTextContents()).map(cents);
-  const allowances = await page.locator('.final-allowance span:last-child').allTextContents();
-  for (const value of allowances) expect(value).toMatch(/^\d+ % \(0,\d{2}\)$/u);
-  const rows = salaries.map((salary, i) => Math.max(0, Math.round(Math.max(mrot, regional) * (k + Number(allowances[i].split(' %')[0])) / 100) - salary));
-  expect(rows.some(due => due > 0)).toBe(true);
-  expect(rows.some(due => due === 0)).toBe(true);
+  const k = hundredths(await page.locator('.final-organization strong').innerText());
+  const base = mrot > regional ? mrot : regional;
+  const dues: number[] = [];
+  for (const row of await page.locator('.final-worker').all()) {
+    const s = await row.locator('.final-allowance span:last-child').innerText();
+    expect(s).toMatch(/^\d+ % \(0,\d{2}\)$/u);
+    const q = hundredths(await row.locator('.final-rate span:last-child').innerText());
+    const w = await displayedW(row);
+    dues.push(Number(expectedPayroll(base, k, allowance(s), q, w).due));
+  }
+  expect(dues.some(due => due > 0)).toBe(true);
+  expect(dues.some(due => due === 0)).toBe(true);
   return { base: mrot > regional ? '#final-base' : '#final-base-regional', wrongBase: mrot > regional ? '#final-base-regional' : '#final-base',
-    rows, total: rows.reduce((sum, due) => sum + due, 0) };
+    rows: dues, total: dues.reduce((sum, due) => sum + due, 0) };
 }
 
 async function fillWorksheet(page: Page, answer: Awaited<ReturnType<typeof readWorksheet>>) {
@@ -93,6 +96,11 @@ for (const viewport of viewports) {
       return box.height >= 44 && box.width >= 96;
     }))).toBe(true);
     await capture(page, '01-payroll', viewport.width === 360 ? '.final-paper' : '.final-screen', true);
+    if (process.env.ETAP3_SCREEN_ROOT) {
+      await page.locator('.final-worker').nth(1).locator('summary').click();
+      await expect(page.locator('.final-worker').nth(1).locator('.pay-line[data-kind=night]')).toBeVisible();
+      await captureV5(page, '07-final-q-w', viewport.width === 360 ? '.final-worker:nth-child(2)' : '.final-paper', true);
+    }
     const answer = await readWorksheet(page);
     await fillWorksheet(page, answer);
     const name = 'Александра Рябова';
@@ -115,6 +123,7 @@ for (const viewport of viewports) {
 
     await expect(page.getByRole('heading', { name: 'Акт проверки № 001' })).toBeVisible();
     await expect(page.getByText(name, { exact: true })).toBeVisible();
+    await expect(page.locator('.act-table thead')).toContainText('Минимум с учётом ставки');
     await expect(page.locator('.act-paper time')).toHaveText(await page.evaluate(() => new Date().toLocaleDateString('ru-RU')));
     await expect(page.locator('.act-total')).toContainText(formatAmount(answer.total));
     await expect(page.locator('.act-summary')).toContainText('+150 XP');
@@ -186,7 +195,8 @@ for (const viewport of viewports) {
     await review.locator('summary').click();
     await expect(review.getByText('Верно', { exact: true })).toBeVisible();
     await expect(review.getByText('В ведомости', { exact: true })).toBeVisible();
-    await expect(review.getByRole('link', { name: 'Повторить: раздел о применимом минимуме' })).toHaveAttribute('aria-disabled', 'true');
+    await expect(review.getByRole('link', { name: 'Часть 4, п. 4.1, формула (3)', exact: true }))
+      .toHaveAttribute('href', /method-v5\.html#p4-1$/);
     await expect(page.locator('body')).not.toContainText('TODO');
     await capture(page, '03-review', viewport.width === 360 ? '.final-worker:has([aria-invalid=true])' : '.final-paper');
     await amount.fill(formatAmount(answer.rows[owes]) + ' ₽');
@@ -195,6 +205,24 @@ for (const viewport of viewports) {
     expect((await saved(page)).xp).toBe(1300);
   });
 }
+
+test('Старый незаконченный аудит открывается по v5, с опытом и сообщением о миграции', async ({ page }) => {
+  const legacy = initialProgress();
+  legacy.xp = 100;
+  legacy.audit.cards[0].step = 'correction';
+  legacy.audit.cards[0].attempts = 1;
+  await page.addInitScript(({ key, value }) => {
+    if (!localStorage.getItem(key)) localStorage.setItem(key, value);
+  }, { key: STORAGE_KEY, value: JSON.stringify({ ...legacy, methodVersion: undefined }) });
+  await page.goto('/#audit');
+  await expect(page.getByText('Незавершённые расчёты начаты заново', { exact: false })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Найдите первую ошибку' })).toBeVisible();
+  expect((await saved(page)).xp).toBe(100);
+  expect((await saved(page)).methodVersion).toBe(5);
+  await page.getByRole('button', { name: 'Понятно', exact: true }).click();
+  await page.reload();
+  await expect(page.getByRole('button', { name: 'Понятно', exact: true })).toHaveCount(0);
+});
 
 test('Финал закрыт после одного уровня, служебные метки скрыты в «Об игре»', async ({ page }) => {
   await prepare(page, [3]);

@@ -6,7 +6,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 const chromePath = `${process.env['PROGRAMFILES(X86)']}\\Microsoft\\Edge\\Application\\msedge.exe`;
 const profile = `work/lighthouse-scene-${Date.now()}`;
-const directory = process.env.AUDIT_OUTPUT_DIR || 'work/etap2/lighthouse';
+const directory = process.env.AUDIT_OUTPUT_DIR || 'work/etap3/lighthouse';
 const scores=[];
 async function seedFinal(context, hash) {
  const page = await context.newPage();
@@ -23,7 +23,7 @@ async function seedFinal(context, hash) {
    if (signed) {
     const now = new Date();
     const date = [now.getFullYear(), now.getMonth() + 1, now.getDate()].map(n => String(n).padStart(2, '0')).join('-');
-    progress.final.act = { date, xp: 1350, reward: 100, bonus: 150, cleanCases: 11 };
+    progress.final.act = { date, xp: 1350, reward: 100, bonus: 150, cleanCases: 11, method: 5 };
     progress.final.draft.name = 'Александра Рябова';
    }
    localStorage.setItem(key, JSON.stringify(progress));
