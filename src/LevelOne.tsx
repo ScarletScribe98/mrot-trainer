@@ -1,7 +1,7 @@
 import { useState } from 'preact/hooks';
 import { chronological, findMilestone, historyPairs, milestones, ratioHigher, sortKey, sortStart, supplements,
   type Milestone } from './data/real/study';
-import { attemptReward, nextHistory, submitHistory, type Progress } from './game';
+import { attemptReward, nextHistory, rewardLabel, submitHistory, type Progress } from './game';
 import { Button, Document, Folder, Hint, Icon, MethodNote, Stamp } from './ui/components';
 import { effect } from './audio';
 
@@ -46,6 +46,7 @@ function HistoryRound({ progress, update }: Omit<Props, 'onBack'>) {
   const state = progress.study.history;
   const pair = historyPairs[state.turn];
   const [order, setOrder] = useState(sortStart);
+  const markMisplaced = !pair && !state.accepted && state.attempts >= 2;
   function answer(correct: boolean) {
     effect(correct ? 'stamp' : 'click', progress.sound);
     update(submitHistory(progress, correct));
@@ -59,7 +60,8 @@ function HistoryRound({ progress, update }: Omit<Props, 'onBack'>) {
     <div class="real-task-head"><h2>{pair ? 'Выше или ниже?' : 'Расставьте события'}</h2><span>{state.turn + 1} / {historyPairs.length + 1}</span></div>
     {pair ? <>
       <p>Отношение МРОТ / ПМ во второй вехе выше или ниже, чем в первой?</p>
-      <div class="history-comparison" aria-live="polite"><ComparisonCard item={pair[0]} revealed/><ComparisonCard item={pair[1]} revealed={state.accepted}/></div>
+      <div class="history-comparison"><ComparisonCard item={pair[0]} revealed/>
+        <ComparisonCard item={pair[1]} revealed={state.accepted || state.attempts > 0}/></div>
       {!state.accepted && <div class="real-actions">
         <Button type="button" onClick={() => answer(ratioHigher(...pair))}>Выше</Button>
         <Button type="button" variant="secondary" onClick={() => answer(!ratioHigher(...pair))}>Ниже</Button>
@@ -68,7 +70,10 @@ function HistoryRound({ progress, update }: Omit<Props, 'onBack'>) {
       <p>Поставьте события от самого раннего к самому позднему.</p>
       <ol class="history-sort">{(state.accepted ? sortKey : order).map((year, index) => {
         const item = findMilestone(year);
-        return <li key={year}><span>{state.accepted && <b>{year} · </b>}{item.event}</span>
+        const misplaced = markMisplaced && sortKey[index] !== year;
+        return <li key={year} class={misplaced ? 'history-misplaced' : undefined}>
+          <span>{state.accepted && <b>{year} · </b>}{item.event}</span>
+          {misplaced && <small>Не на своём месте</small>}
           {!state.accepted && <div class="history-arrows">
             <button type="button" aria-label={'Поднять: ' + item.event} disabled={index === 0} onClick={() => move(index, -1)}>↑</button>
             <button type="button" aria-label={'Опустить: ' + item.event} disabled={index === order.length - 1} onClick={() => move(index, 1)}>↓</button>
@@ -79,13 +84,16 @@ function HistoryRound({ progress, update }: Omit<Props, 'onBack'>) {
         : <Button type="button" onClick={() => answer(chronological(order))}>Проверить порядок</Button>}
     </>}
     {!state.accepted && state.attempts > 0 && <div role="status"><Hint detailed={state.attempts >= 2}>
-      <p>{pair ? pair[1].event + ' · ' + pair[1].source : 'Последнее повышение перед заморозкой датировано 1997 годом (п. 2.4, табл. 7).'}</p>
-      {state.attempts >= 2 && <details class="real-details"><summary>Сверить с источником</summary>
-        {pair ? <ComparisonCard item={pair[1]} revealed/> : <ol>{sortKey.map(year => <li key={year}>{year} · {findMilestone(year).event}</li>)}</ol>}
+      {pair ? <p><strong>Неверно.</strong> Правильный ответ — «{ratioHigher(...pair) ? 'Выше' : 'Ниже'}».
+        {' '}МРОТ / ПМ в {pair[0].year} г. — {pair[0].ratio}, в {pair[1].year} г. — {pair[1].ratio}.</p>
+        : <p><strong>Неверно.</strong> {markMisplaced ? 'События, которые стоят не на своём месте, отмечены в списке.'
+          : 'Последнее повышение перед заморозкой датировано 1997 годом (п. 2.4, табл. 7).'}</p>}
+      {markMisplaced && <details class="real-details"><summary>Сверить с источником</summary>
+        <ol>{sortKey.map(year => <li key={year}>{year} · {findMilestone(year).event}</li>)}</ol>
       </details>}
       <MethodNote topics={['history']}/>
     </Hint></div>}
-    {state.accepted && <div class="real-actions"><span role="status">Верно · +{attemptReward({ hint: false, attempts: state.attempts })} XP</span>
+    {state.accepted && <div class="real-actions"><span role="status">Верно · {rewardLabel(attemptReward({ hint: false, attempts: state.attempts }))}</span>
       <Button type="button" onClick={() => { effect('paper', progress.sound); update(nextHistory(progress)); }}>
         {pair ? 'Следующий ход' : 'Завершить уровень'} <Icon name="arrow"/>
       </Button></div>}
@@ -95,7 +103,8 @@ function HistoryRound({ progress, update }: Omit<Props, 'onBack'>) {
 export function LevelOne({ progress, update, onBack }: Props) {
   const complete = progress.study.history.turn > historyPairs.length;
   return <section class="game-screen real-screen history-screen">
-    <div class="game-breadcrumb"><button type="button" onClick={onBack}>Архив дел</button><span>/</span><span>Уровень 1</span></div>
+    <div class="game-breadcrumb"><button type="button" onClick={onBack}>Архив дел</button><span>/</span>
+      <span>Уровень 1</span><span class="data-badge">Методичка v5</span></div>
     <div class="section-heading game-heading"><div><h1>Машина времени</h1></div></div>
     <Folder><Document class="history-paper">
       <h2>Вехи МРОТ и прожиточного минимума</h2>
