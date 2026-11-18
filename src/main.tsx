@@ -33,11 +33,14 @@ function readScreen(): Screen { const hash = location.hash.slice(1); return Obje
 // Старые ссылки сохраняют экран и остальные параметры, но больше не выбирают тему.
 const entryUrl = new URL(location.href);
 if (entryUrl.searchParams.has('theme')) { entryUrl.searchParams.delete('theme'); history.replaceState(history.state, '', entryUrl); }
+const debug = entryUrl.searchParams.get('debug') === '1';
 function App() {
  const [route, setScreen] = useState<Screen>(readScreen);
  const [progress, setProgress] = useState<Progress>(loadProgress);
  const screen = (route === 'final' || route === 'act') && !canOpenFinal(progress) ? 'levels'
   : route === 'act' && !progress.final.act ? 'final' : route;
+ const seed = screen === 'map' ? progress.study.map.seed : screen === 'game' ? progress.run.seed
+  : screen === 'audit' ? progress.audit.seed : screen === 'final' || screen === 'act' ? progress.final.seed : null;
  const realScreen = screen === 'history' || screen === 'map';
  const [storageError, setStorageError] = useState(false);
  const [resetting, setResetting] = useState(false);
@@ -77,8 +80,9 @@ function App() {
   act={makeActData((progress.final.act.method === 5 ? generateFinalSheet : generateLegacyFinalSheet)(progress.final.seed),
    progress.final.act, progress.final.draft.name)}
   onBack={() => navigate('levels')}/>}
+ {debug && seed !== null && <p class="debug-seed">ЗЕРНО {seed}</p>}
  {screen === 'about' && <About onReset={() => setResetting(true)}/>}
- </div><footer class="main-footer"><span><span class="status-dot"/>{offlineReady ? 'Архив доступен без интернета' : 'Локальный учебный тренажёр'}</span><span>{realScreen ? 'МЕТОДИЧКА V5' : 'УЧЕБНЫЙ АРХИВ'} <span class="slash">/</span> ЭТАП 4</span></footer></main></div>
+ </div><footer class="main-footer"><span><span class="status-dot"/>{offlineReady ? 'Архив доступен без интернета' : 'Локальный учебный тренажёр'}</span><span>{realScreen ? 'МЕТОДИЧКА V5' : 'УЧЕБНЫЙ АРХИВ'}</span></footer></main></div>
  <div class="mobile-tools"><span>{rank(progress.xp)} · {progress.xp} очков</span><AudioToggles sound={progress.sound} music={progress.music} onSound={toggleSound} onMusic={toggleMusic}/></div>
  {resetting && <div class="modal-backdrop"><section role="dialog" aria-modal="true" aria-labelledby="reset-title" class="reset-dialog" onKeyDown={e => { if (e.key === 'Escape') setResetting(false); if (e.key === 'Tab') { const buttons = e.currentTarget.querySelectorAll('button'); const first = buttons[0], last = buttons[buttons.length - 1]; if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); } else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); } } }}><h2 id="reset-title">Открыть чистое дело?</h2><p>Опыт и результаты проверок будут удалены с этого устройства.</p><Button autoFocus onClick={() => { setMusic(false); setProgress(initialProgress()); setResetting(false); navigate('title'); }}>Начать заново</Button><Button variant="quiet" onClick={() => setResetting(false)}>Отмена</Button></section></div>}
  </div>;

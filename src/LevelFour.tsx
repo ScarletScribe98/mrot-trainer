@@ -1,10 +1,9 @@
 import { useLayoutEffect, useRef, useState } from 'preact/hooks';
-import { formatAllowance } from './calc/final';
 import { auditFields, baseLabels, derivedRows, generateAuditSheets, parseAuditAmount, type AuditAnswer, type AuditError, type AuditSheet, type DerivedRow } from './calc/audit';
-import { advanceAudit, requestAuditHint, submitAudit, type AuditStep, type Progress } from './game';
+import { advanceAudit, requestAuditHint, rewardLabel, submitAudit, type AuditStep, type Progress } from './game';
 import { effect } from './audio';
 import { Asset, Portrait } from './ui/artwork';
-import { Button, Document, Folder, Hint, Icon, MethodNote, Money, PaymentLines, Stamp, type MethodTopic } from './ui/components';
+import { allowanceLabel, Button, Document, Folder, Hint, Icon, MethodNote, Money, PaymentLines, Stamp, type MethodTopic } from './ui/components';
 
 const rowLabels = [
   'МРОТ (учебный)', 'Региональный минимум (учебный)', 'Принятая база B', 'Районный коэффициент k',
@@ -42,7 +41,7 @@ function Worksheet({ sheet, index, selected, canSelect, wrongSelection, detailed
   const [viewed, setViewed] = useState<number | null>(null);
   const values = [
     <Money cents={task.federal}/>, <Money cents={task.regional}/>,
-    calculatedValue(shown, 3), task.k.replace('.', ','), formatAllowance(task.s), task.q.replace('.', ','),
+    calculatedValue(shown, 3), task.k.replace('.', ','), allowanceLabel(task.s), task.q.replace('.', ','),
     ...derivedRows.slice(1).map(row => calculatedValue(shown, row)),
   ];
 
@@ -189,7 +188,7 @@ function AuditCase({ progress, update, onBack }: { progress: Progress; update: (
 
   return <section class="game-screen audit-screen">
     <div class="game-breadcrumb"><button onClick={onBack}>Архив дел</button><span>/</span><span>Уровень 4</span>
-      <span class="demo-badge">Демонстрационные данные</span></div>
+      <span class="data-badge">Учебные данные</span></div>
     <div class="section-heading game-heading">
       <div><div class="eyebrow brass">Дело № 004 · Проверка расчёта</div><h1>Аудит ведомости</h1></div>
       <div class="card-counter"><strong>{String(audit.index + 1).padStart(2, '0')}<span> / 05</span></strong><span>ЛИСТ В ДЕЛЕ</span></div>
@@ -211,7 +210,7 @@ function AuditCase({ progress, update, onBack }: { progress: Progress; update: (
         {step !== 'row' && <p class="audit-selection">Строка {sheet.row} · {rowLabels[sheet.row - 1]}</p>}
         {answered ? <div class="accepted">
           <Stamp>Ошибка найдена</Stamp>
-          <p><strong>+{card.reward} очков опыта</strong>{card.reward === 150 && <span>Включая +50 за серию из трёх.</span>}</p>
+          <p><strong>{rewardLabel(card.reward === 150 ? 100 : card.reward)}</strong>{card.reward === 150 && <span>Ещё +50 XP за серию из трёх.</span>}</p>
           <Button type="button" onClick={next}>{audit.index === 4 ? 'Подвести итоги' : 'Следующий лист'}<Icon name="arrow"/></Button>
         </div> : <>
           {step !== 'row' && <form onSubmit={submitForm}>

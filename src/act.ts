@@ -1,6 +1,6 @@
 import { formatAmount } from './calc';
 import type { FinalSheet } from './calc/final';
-import { rank, type InspectionAct } from './game';
+import { rank, rewardLabel, type InspectionAct } from './game';
 
 export const actDisclaimer = 'Учебный документ. Тренажёр по курсу «Минимальная оплата труда».';
 const legacyColumns = ['Работник', 'Начислено', 'Применимый минимум', 'Недоплата'];
@@ -26,7 +26,7 @@ export function makeActData(sheet: ActSheet, act: InspectionAct, name: string) {
     summary: [
       ['Общий опыт', act.xp.toLocaleString('ru-RU') + ' XP'],
       ['Дел с первой попытки', String(act.cleanCases)],
-      ['За финал', '+' + act.reward + ' XP'],
+      ['За финал', rewardLabel(act.reward)],
       ...(act.bonus ? [['За все доступные уровни', '+' + act.bonus + ' XP']] : []),
     ],
   };
@@ -105,7 +105,7 @@ export async function saveActPng(act: ActData) {
     const x = i % 2 === 0 ? 112 : 450;
     const y = i < 2 ? 1132 : 1232;
     text(label, x, y, 23, sans, mute, 325);
-    text(value, x, y + 40, 33, mono);
+    text(value, x, y + 40, i === 2 ? 23 : 33, mono, ink, 315);
   });
   ctx.save();
   ctx.translate(1138, 1177);

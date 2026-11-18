@@ -67,6 +67,10 @@
 .final-submit-status, .final-help { grid-column: 1 / -1; color: var(--text); font-size: 15px; }
 .final-submit-status:empty { display: none; }
 .final-sign--press .final-sign-button { animation: final-press 320ms var(--ease) both; }
+@media screen and (min-width: 761px) and (max-height: 800px) {
+  html:has(.final-sign) { scroll-padding-bottom: 180px; }
+  .final-sign { position: sticky; bottom: 0; z-index: 2; padding-block: 8px; }
+}
 @keyframes final-press {
   25% { transform: translateY(3px) scale(.97); }
   60% { transform: translateY(0) scale(1); }

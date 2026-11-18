@@ -3,10 +3,10 @@ import type { ComponentChildren } from 'preact';
 import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { formatAmount } from './calc';
 import { baseLabels } from './calc/audit';
-import { formatAllowance, generateFinalSheet, type FinalCell, type FinalDraft, type FinalVerdict } from './calc/final';
+import { generateFinalSheet, type FinalCell, type FinalDraft, type FinalVerdict } from './calc/final';
 import { submitFinal, type Progress } from './game';
 import { effect } from './audio';
-import { Button, Document, Folder, Icon, MethodNote, Money, PaymentLines, type MethodTopic } from './ui/components';
+import { allowanceLabel, Button, Document, Folder, Icon, MethodNote, Money, PaymentLines, type MethodTopic } from './ui/components';
 
 type Update = (change: (p: Progress) => Progress) => void;
 const amountLabel = (value: string) => value.trim() || 'Сумма не указана';
@@ -110,7 +110,7 @@ export function FinalCase({ progress, update, onBack, onSigned }: {
   const invalidConclusion = issues.includes('conclusion');
   return <section class="game-screen final-screen">
     <div class="game-breadcrumb"><button onClick={onBack}>Архив дел</button><span>/</span><span>Финал</span>
-      <span class="demo-badge">Демонстрационные данные</span></div>
+      <span class="data-badge">Учебные данные</span></div>
     <div class="game-heading final-heading">
       <div><div class="eyebrow brass">Финальная проверка</div><h1>Дело № 001</h1></div>
       <p>Выберите общую базу, проверьте четыре строки ведомости и подпишите акт.</p>
@@ -156,7 +156,7 @@ export function FinalCase({ progress, update, onBack, onSigned }: {
                 <tr class="final-worker" role="row">
                   <th scope="row" role="rowheader"><strong>{row.name}</strong><small>{row.position}</small></th>
                   <td class="final-rate" role="cell"><span class="final-mobile-label" aria-hidden="true">Доля ставки q</span><span>{row.q.replace('.', ',')}</span></td>
-                  <td class="final-allowance" role="cell"><span class="final-mobile-label" aria-hidden="true">Надбавка s</span><span>{formatAllowance(row.s)}</span></td>
+                  <td class="final-allowance" role="cell"><span class="final-mobile-label" aria-hidden="true">Надбавка s</span><span>{allowanceLabel(row.s)}</span></td>
                   <td class="final-payments" role="cell"><details class="payment-details">
                     <summary>Состав выплат</summary><PaymentLines payments={row.payments}/>
                   </details></td>
