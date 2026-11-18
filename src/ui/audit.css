@@ -1,0 +1,46 @@
+.audit-sheet .worker-heading { margin-block: 13px; gap: 16px; }
+.audit-sheet .worker-portrait { width: 70px; height: 88px; flex-basis: 70px; }
+.audit-sheet .worker-heading h2 { margin-block: 0 5px; }
+.audit-sheet h3 { font: 600 18px/1.4 var(--font-sans); margin: 12px 0 8px; }
+.audit-rows { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--paper-line); }
+.audit-rows li { border-bottom: 1px solid var(--paper-line); }
+.audit-row {
+  display: grid; grid-template-columns: auto minmax(0,1fr) auto; align-items: center;
+  gap: 12px; width: 100%; min-height: 44px; padding: 4px 7px;
+  background: none; border: 0; color: var(--ink); text-align: left;
+}
+.audit-row:focus-visible { outline-color: #30533b; outline-offset: -2px; }
+.audit-row:enabled:hover, .audit-row[aria-expanded='true'] { background: #dce3d2; }
+.audit-row-index { font: 15px var(--font-mono); color: var(--ink-muted); }
+.audit-row-label { font-size: 16px; line-height: 1.25; }
+.audit-row small { display: block; font: 14px/1.25 var(--font-sans); color: var(--ink-muted); }
+.audit-row-value { font: 18px/1.2 var(--font-mono); text-align: right; }
+.audit-verdict { font: 500 16px/1.25 var(--font-sans); }
+.audit-row[aria-pressed='true'] .audit-row-label {
+  text-decoration: underline 2px #8f302c;
+  text-underline-offset: .24em;
+}
+.audit-row[aria-pressed='true'] .audit-row-index {
+  outline: 2px solid #8f302c; outline-offset: 2px; border-radius: 48% 55% 49% 60%;
+}
+.audit-source-note { background: #dce3d2; color: var(--ink); padding: 8px 10px; margin: 0; font-size: 14px; line-height: 1.55; }
+.audit-notes h2 { scroll-margin: 14px; }
+.audit-notes h2:focus { outline: 0; }
+.audit-selection { margin: 12px 0 20px; color: var(--accent); font-size: 15px; }
+.audit-options { display: grid; gap: 8px; }
+.audit-options label {
+  display: flex; align-items: center; gap: 12px;
+  min-height: 46px; padding: 8px 12px; background: #102319;
+  border: 1px solid var(--accent-line); font-size: 16px; cursor: pointer;
+}
+.audit-options .selected { background: #263d2c; border-color: var(--accent); }
+.audit-notes .validation:empty { margin: 0; }
+.audit-notes .accepted .button { margin-top: 18px; }
+@media (max-width:760px) {
+  .audit-sheet h3 { font-size: 16px; }
+  .audit-sheet .worker-portrait { width: 59px; height: 76px; flex-basis: 59px; }
+  .audit-row { gap: 6px; padding-inline: 3px; }
+  .audit-row-index, .audit-row-label, .audit-row-value, .audit-verdict { font-size: 13px; }
+  .audit-row small { font-size: 11px; }
+  .audit-options label { font-size: 14px; }
+}

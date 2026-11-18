@@ -1,11 +1,20 @@
 import { generateTasks, applicableMinimum, selectBase, underpayment } from './calc';
+import { AUDIT_SEED, checkAuditAnswer, type AuditAnswer, type AuditSheet } from './calc/audit';
 export type Verdict = 'yes' | 'no';
 export interface CardState { attempts: number; hint: boolean; answered: boolean; reward: number; }
 export interface Run { seed: number; index: number; cards: CardState[]; streak: number; earned: number; completed: boolean; }
-export interface Progress { version: 1; xp: number; completed: number[]; sound: boolean; music: boolean; run: Run; }
+export type AuditStep = AuditAnswer['step'];
+interface AuditCard extends CardState { step: AuditStep; }
+interface AuditRun extends Run { cards: AuditCard[]; }
+export interface Progress { version: 1; xp: number; completed: number[]; sound: boolean; music: boolean; run: Run; audit: AuditRun; }
+type SavedProgress = Omit<Progress, 'audit'> & { audit?: AuditRun };
 export const STORAGE_KEY = 'inspektor-truda-v1';
 export function newRun(seed = 73103): Run { return { seed, index: 0, cards: Array.from({ length: 5 }, () => ({ attempts: 0, hint: false, answered: false, reward: 0 })), streak: 0, earned: 0, completed: false }; }
-export function initialProgress(): Progress { return { version: 1, xp: 0, completed: [], sound: true, music: false, run: newRun() }; }
+export function newAuditRun(seed = AUDIT_SEED): AuditRun {
+ const run = newRun(seed);
+ return { ...run, cards: run.cards.map(card => ({ ...card, step: 'row' })) };
+}
+export function initialProgress(): Progress { return { version: 1, xp: 0, completed: [], sound: true, music: false, run: newRun(), audit: newAuditRun() }; }
 export function rank(xp: number): string { return xp >= 1500 ? 'Главный аудитор' : xp >= 800 ? 'Специалист по расчётам' : xp >= 300 ? 'Младший инспектор' : 'Стажёр'; }
 export function nextRank(xp: number): number { return [300, 800, 1500].find(n => n > xp) ?? 1500; }
 export function submit(progress: Progress, verdict: Verdict, amount: number | null): { progress: Progress; correct: boolean } {
@@ -23,10 +32,47 @@ export function submit(progress: Progress, verdict: Verdict, amount: number | nu
  } else { card.attempts++; if (card.attempts >= 2) card.hint = true; }
  return { correct, progress: { ...progress, xp: progress.xp + reward, run: { ...run, streak, earned: run.earned + reward, cards: run.cards.map((c, i) => i === run.index ? card : c) } } };
 }
-export function validateProgress(value: unknown): value is Progress {
- if (!value || typeof value !== 'object') return false;
- const p = value as Progress;
- const integer = (x: unknown, max = Number.MAX_SAFE_INTEGER) => typeof x === 'number' && Number.isSafeInteger(x) && x >= 0 && x <= max;
- return p.version === 1 && integer(p.xp) && Array.isArray(p.completed) && p.completed.every(n => n === 3) && typeof p.sound === 'boolean' && typeof p.music === 'boolean' && !!p.run && integer(p.run.seed, 4294967295) && integer(p.run.index, 4) && integer(p.run.streak, 2) && integer(p.run.earned) && typeof p.run.completed === 'boolean' && Array.isArray(p.run.cards) && p.run.cards.length === 5 && p.run.cards.every(c => c && integer(c.attempts) && typeof c.hint === 'boolean' && typeof c.answered === 'boolean' && integer(c.reward, 150)) && p.run.cards.every((c, i) => i >= p.run.index || c.answered) && (!p.run.completed || p.run.cards.every(c => c.answered));
+const nextStep = { row: 'explanation', explanation: 'correction', correction: 'correction' } as const;
+
+export function submitAudit(progress: Progress, sheet: AuditSheet, answer: AuditAnswer): { progress: Progress; correct: boolean } {
+ const audit = progress.audit;
+ const state = audit.cards[audit.index];
+ if (audit.completed || state.answered || state.step !== answer.step) return { progress, correct: false };
+ const correct = checkAuditAnswer(sheet, answer);
+ const card = correct ? { ...state, step: nextStep[state.step], answered: state.step === 'correction' }
+  : { ...state, attempts: state.attempts + 1 };
+ return { correct, progress: { ...progress, audit: { ...audit, cards: audit.cards.map((c, i) => i === audit.index ? card : c) } } };
 }
-export function loadProgress(): Progress { try { const p: unknown = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); return validateProgress(p) ? p : initialProgress(); } catch { return initialProgress(); } }
+
+export function advanceAudit(progress: Progress): Progress {
+ const audit = progress.audit;
+ if (audit.completed || !audit.cards[audit.index].answered) return progress;
+ if (audit.index < audit.cards.length - 1) return { ...progress, audit: { ...audit, index: audit.index + 1 } };
+ return { ...progress, completed: [...new Set([...progress.completed, 4])], audit: { ...audit, completed: true } };
+}
+
+const integer = (x: unknown, max = Number.MAX_SAFE_INTEGER) =>
+ typeof x === 'number' && Number.isSafeInteger(x) && x >= 0 && x <= max;
+
+function validateRun(run: Run): boolean {
+ return !!run && integer(run.seed, 4294967295) && integer(run.index, 4) && integer(run.streak, 2) &&
+  integer(run.earned) && typeof run.completed === 'boolean' && Array.isArray(run.cards) && run.cards.length === 5 &&
+  run.cards.every((c, i) => c && integer(c.attempts) && typeof c.hint === 'boolean' &&
+   typeof c.answered === 'boolean' && integer(c.reward, 150) && (!(run.completed || i < run.index) || c.answered));
+}
+
+export function validateProgress(value: unknown): value is SavedProgress {
+ if (!value || typeof value !== 'object') return false;
+ const p = value as SavedProgress;
+ return p.version === 1 && integer(p.xp) && Array.isArray(p.completed) && p.completed.every(n => n === 3 || n === 4) &&
+  typeof p.sound === 'boolean' && typeof p.music === 'boolean' && validateRun(p.run) &&
+  (p.audit === undefined || (validateRun(p.audit) && p.audit.cards.every(c =>
+   ['row', 'explanation', 'correction'].includes(c.step) && (!c.answered || c.step === 'correction'))));
+}
+
+export function loadProgress(): Progress {
+ try {
+  const saved: unknown = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+  return validateProgress(saved) ? { ...saved, audit: saved.audit ?? newAuditRun() } : initialProgress();
+ } catch { return initialProgress(); }
+}
