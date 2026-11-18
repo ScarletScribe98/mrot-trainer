@@ -44,3 +44,24 @@
   .audit-row small { font-size: 11px; }
   .audit-options label { font-size: 14px; }
 }
+.audit-sheet-instruction { font-size: 15px; margin: 0 0 10px; }
+.audit-row-feedback { padding: 7px 10px; color: #7f2925; background: #f0e2d9; font-size: 14px; line-height: 1.5; }
+.audit-row-feedback button {
+  display: inline-flex; align-items: center; gap: 8px; padding: 4px 0; min-height: 44px;
+  background: none; border: 0; color: inherit; text-decoration: underline;
+}
+.audit-row-feedback button:focus-visible { outline-color: #7f2925; }
+.audit-comparison { margin-top: 14px; }
+.audit-comparison summary { color: var(--accent); cursor: pointer; padding: 10px 2px; min-height: 44px; }
+.audit-comparison table { border-collapse: collapse; width: 100%; font-size: 14px; line-height: 1.4; }
+.audit-comparison :is(th, td) { padding: 7px 5px; border-bottom: 1px solid #748a6c; text-align: left; }
+.audit-comparison th { font-weight: 500; }
+.audit-comparison th > small, .audit-comparison td > small { display: block; font-size: inherit; }
+.audit-comparison-error { background: #683634; }
+.audit-comparison-error th { border-left: 2px solid #eaa39e; padding-left: 5px; }
+.audit-notes .method-placeholder [role='link'] { text-decoration: underline; }
+@media (max-width:760px) {
+  .audit-comparison table { font-size: 12px; }
+  .audit-comparison :is(th, td) { padding-inline: 3px; }
+  .audit-sheet-instruction { font-size: 13px; }
+}

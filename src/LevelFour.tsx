@@ -1,9 +1,9 @@
 import { useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { baseLabels, generateAuditSheets, parseAuditAmount, type AuditAnswer, type AuditError, type AuditSheet } from './calc/audit';
-import { advanceAudit, submitAudit, type Progress } from './game';
+import { advanceAudit, requestAuditHint, submitAudit, type AuditStep, type Progress } from './game';
 import { effect } from './audio';
 import { Asset, Portrait } from './ui/artwork';
-import { Button, Document, Folder, Icon, Money, Stamp } from './ui/components';
+import { Button, Document, Folder, Hint, Icon, Money, Stamp } from './ui/components';
 
 const rowLabels = [
   'МРОТ (учебный)', 'Региональный минимум (учебный)', 'Принятая база B', 'Районный коэффициент k',
@@ -26,8 +26,9 @@ function verdictLabel(violation: boolean): string {
   return violation ? 'Нарушение есть' : 'Нарушения нет';
 }
 
-function Worksheet({ sheet, index, selected, canSelect, onSelect }: {
-  sheet: AuditSheet; index: number; selected: number | null; canSelect: boolean; onSelect: (row: number) => void;
+function Worksheet({ sheet, index, selected, canSelect, wrongSelection, detailed, onSelect, onNotes }: {
+  sheet: AuditSheet; index: number; selected: number | null; canSelect: boolean; wrongSelection: boolean;
+  detailed: boolean; onSelect: (row: number) => void; onNotes: () => void;
 }) {
   const { task, shown } = sheet;
   const [viewed, setViewed] = useState<number | null>(null);
@@ -48,6 +49,7 @@ function Worksheet({ sheet, index, selected, canSelect, onSelect }: {
         <span class="company">Учебный регион · {task.region}</span></div>
     </div>
     <h3>Расчёт предыдущего проверяющего</h3>
+    {canSelect && <p class="audit-sheet-instruction">Отметьте первую неверную строку.</p>}
     <ol class="audit-rows">
       {rowLabels.map((label, i) => {
         const row = i + 1;
@@ -61,6 +63,10 @@ function Worksheet({ sheet, index, selected, canSelect, onSelect }: {
             <span class="audit-row-value">{values[i]}</span>
           </button>
           {note && viewed === row && <p class="audit-source-note">{note}</p>}
+          {wrongSelection && selected === row && <div class="audit-row-feedback">
+            <p role="status">Проверьте расчёт по порядку, начиная с базы.</p>
+            {detailed && <button type="button" onClick={onNotes}>Перейти к разбору <Icon name="arrow" size={17}/></button>}
+          </div>}
         </li>;
       })}
     </ol>
@@ -86,6 +92,42 @@ export function LevelFour({ progress, update, onBack, onReplay }: {
   return <AuditCase key={audit.index} progress={progress} update={update} onBack={onBack}/>;
 }
 
+function AuditFeedback({ sheet, step, detailed }: { sheet: AuditSheet; step: AuditStep; detailed: boolean }) {
+  const shortHint = step === 'row' ? 'Сверьте базу, минимум и недоплату по порядку.'
+    : step === 'explanation' ? 'Сопоставьте отмеченную строку с исходными данными и формулой.'
+    : sheet.row === 3 ? 'Сравните суммы в первых двух строках.'
+    : sheet.row === 6 ? 'Сложите k и долю надбавки s. Умножьте базу B на полученную сумму.'
+    : 'Вычтите зарплату из применимого минимума. Если разность отрицательна, запишите ноль.';
+  return <Hint detailed={detailed}>
+    <p>{shortHint}</p>
+    {detailed && <>
+      <ol>
+        <li>Сравните МРОТ и региональный минимум. Возьмите большую базу B.</li>
+        <li>Посчитайте применимый минимум по формуле B × (k + s).</li>
+        <li>Сверьте недоплату и вывод. Нарушение есть, если недоплата больше нуля.</li>
+      </ol>
+      <details class="audit-comparison">
+        <summary>Сравнить расчёты</summary>
+        <table><thead><tr><th scope="col">Строка</th><th scope="col">В листе</th><th scope="col">Верно</th></tr></thead>
+          <tbody>{([3, 6, 8, 9] as const).map(row => {
+            const compareValue = (calc: AuditSheet['shown']) => {
+              if (row === 3) return <><Money cents={calc.base}/><small>{baseLabels[calc.source]}</small></>;
+              if (row === 9) return verdictLabel(calc.violation);
+              return <Money cents={row === 6 ? calc.minimum : calc.due}/>;
+            };
+            return <tr class={row === sheet.row ? 'audit-comparison-error' : ''} key={row}>
+              <th scope="row">{rowLabels[row - 1]}{row === sheet.row && <small>Первая ошибка</small>}</th>
+              <td>{compareValue(sheet.shown)}</td><td>{compareValue(sheet.correct)}</td>
+            </tr>;
+          })}</tbody>
+        </table>
+      </details>
+      <p class="method-placeholder"><span role="link" aria-disabled="true">Повторить: часть N, п. X методички</span>
+        <br/><span>TODO(Эрика): уточнить ссылку</span></p>
+    </>}
+  </Hint>;
+}
+
 function AuditCase({ progress, update, onBack }: { progress: Progress; update: (p: Progress) => void; onBack: () => void }) {
   const { audit } = progress;
   const card = audit.cards[audit.index];
@@ -98,17 +140,21 @@ function AuditCase({ progress, update, onBack }: { progress: Progress; update: (
   const moveToNotes = useRef(false);
   const { step, answered } = card;
 
+  function focusNotes() {
+    notesHeading.current?.focus({ preventScroll: true });
+    notesHeading.current?.scrollIntoView({ block: 'nearest' });
+  }
+
   useLayoutEffect(() => {
     if (!moveToNotes.current) return;
     moveToNotes.current = false;
-    notesHeading.current?.focus({ preventScroll: true });
-    notesHeading.current?.scrollIntoView({ block: 'nearest' });
+    focusNotes();
   }, [step, answered]);
 
   function answer(response: AuditAnswer) {
     const result = submitAudit(progress, sheet, response);
     moveToNotes.current = result.correct;
-    setValidation(result.correct ? '' : 'Пока не сходится. Попробуйте ещё раз.');
+    setValidation(!result.correct && response.step !== 'row' ? 'Пока не сходится. Попробуйте ещё раз.' : '');
     effect(result.correct && response.step === 'correction' ? 'stamp' : 'click', progress.sound);
     update(result.progress);
   }
@@ -144,7 +190,8 @@ function AuditCase({ progress, update, onBack }: { progress: Progress; update: (
     <div class="case-workspace">
       <div class="document-stage">
         <Worksheet sheet={sheet} index={audit.index} selected={step === 'row' ? selection : sheet.row}
-          canSelect={step === 'row'} onSelect={row => { setSelection(row); answer({ step: 'row', value: row }); }}/>
+          canSelect={step === 'row'} wrongSelection={step === 'row' && card.attempts > 0}
+          detailed={card.attempts >= 2} onNotes={focusNotes} onSelect={row => { setSelection(row); answer({ step: 'row', value: row }); }}/>
       </div>
       <div class="inspection-panel audit-notes">
         <div class="panel-header"><span class="eyebrow brass">Пометки инспектора</span>
@@ -154,6 +201,7 @@ function AuditCase({ progress, update, onBack }: { progress: Progress; update: (
         {step !== 'row' && <p class="audit-selection">Строка {sheet.row} · {rowLabels[sheet.row - 1]}</p>}
         {answered ? <div class="accepted">
           <Stamp>Ошибка найдена</Stamp>
+          <p><strong>+{card.reward} очков опыта</strong>{card.reward === 150 && <span>Включая +50 за серию из трёх.</span>}</p>
           <Button type="button" onClick={next}>{audit.index === 4 ? 'Подвести итоги' : 'Следующий лист'}<Icon name="arrow"/></Button>
         </div> : <>
           {step !== 'row' && <form onSubmit={submitForm}>
@@ -178,6 +226,12 @@ function AuditCase({ progress, update, onBack }: { progress: Progress; update: (
             <Button type="submit" class="submit-answer">{step === 'explanation' ? 'Проверить объяснение' : 'Проверить исправление'}<Icon name="check" size={20}/></Button>
           </form>}
           <p class="validation" role="status">{validation}</p>
+          {card.attempts < 2 && !card.hint && <button type="button" class="hint-button"
+            onClick={() => update(requestAuditHint(progress))}><Icon name="info" size={17}/>Нужна подсказка?<span>Зачёт +50</span></button>}
+          <div class="feedback" role="status">
+            {(card.attempts > 0 || card.hint) && <AuditFeedback sheet={sheet} step={step} detailed={card.attempts >= 2}/>}
+          </div>
+          <div class="reward-note"><span>С первой попытки +100</span><span>Серия из трёх +50</span></div>
         </>}
       </div>
     </div>

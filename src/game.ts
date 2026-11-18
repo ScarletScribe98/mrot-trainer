@@ -23,6 +23,11 @@ export function submit(progress: Progress, verdict: Verdict, amount: number | nu
  const task = generateTasks(run.seed)[run.index];
  const due = underpayment(task.salary, applicableMinimum(selectBase(task.federal, task.regional), task.k, task.s));
  const correct = due > 0 ? verdict === 'yes' && amount === due : verdict === 'no';
+ const { card, reward, streak } = gradeCard(run, state, correct);
+ return { correct, progress: { ...progress, xp: progress.xp + reward, run: { ...run, streak, earned: run.earned + reward, cards: run.cards.map((c, i) => i === run.index ? card : c) } } };
+}
+
+function gradeCard<T extends CardState>(run: Run, state: T, correct: boolean) {
  const card = { ...state };
  let reward = 0, streak = correct && state.attempts === 0 && !state.hint ? run.streak + 1 : 0;
  if (correct) {
@@ -30,7 +35,7 @@ export function submit(progress: Progress, verdict: Verdict, amount: number | nu
   if (streak === 3) { reward += 50; streak = 0; }
   card.answered = true; card.reward = reward;
  } else { card.attempts++; if (card.attempts >= 2) card.hint = true; }
- return { correct, progress: { ...progress, xp: progress.xp + reward, run: { ...run, streak, earned: run.earned + reward, cards: run.cards.map((c, i) => i === run.index ? card : c) } } };
+ return { card, reward, streak };
 }
 const nextStep = { row: 'explanation', explanation: 'correction', correction: 'correction' } as const;
 
@@ -39,9 +44,28 @@ export function submitAudit(progress: Progress, sheet: AuditSheet, answer: Audit
  const state = audit.cards[audit.index];
  if (audit.completed || state.answered || state.step !== answer.step) return { progress, correct: false };
  const correct = checkAuditAnswer(sheet, answer);
- const card = correct ? { ...state, step: nextStep[state.step], answered: state.step === 'correction' }
-  : { ...state, attempts: state.attempts + 1 };
- return { correct, progress: { ...progress, audit: { ...audit, cards: audit.cards.map((c, i) => i === audit.index ? card : c) } } };
+ const result = correct && state.step !== 'correction'
+  ? { card: { ...state, step: nextStep[state.step] }, reward: 0, streak: audit.streak }
+  : gradeCard(audit, state, correct);
+ return {
+  correct,
+  progress: {
+   ...progress, xp: progress.xp + result.reward,
+   audit: {
+    ...audit, earned: audit.earned + result.reward, streak: result.streak,
+    cards: audit.cards.map((c, i) => i === audit.index ? result.card : c),
+   },
+  },
+ };
+}
+
+export function requestAuditHint(progress: Progress): Progress {
+ const audit = progress.audit;
+ const state = audit.cards[audit.index];
+ if (state.answered || state.hint) return progress;
+ return { ...progress, audit: { ...audit, streak: 0,
+  cards: audit.cards.map((c, i) => i === audit.index ? { ...state, hint: true } : c),
+ } };
 }
 
 export function advanceAudit(progress: Progress): Progress {
