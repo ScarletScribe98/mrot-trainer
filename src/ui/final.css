@@ -1,0 +1,95 @@
+.final-screen { max-width: 1320px; }
+.final-heading { display: flex; align-items: end; gap: 20px 32px; flex-wrap: wrap; }
+.final-heading p { max-width: 490px; padding: 10px 14px; background: #0b1c14; color: var(--text); }
+.final-stage .folder { transform: none; }
+.final-paper .document-top span:last-child { padding-right: 0; white-space: nowrap; }
+.final-organization { display: flex; justify-content: space-between; gap: 10px 24px; flex-wrap: wrap; margin: 18px 0; }
+.final-organization h2 { font-size: clamp(24px, 2.6vw, 41px); margin-bottom: 4px; }
+.final-organization p { color: var(--ink-muted); font-size: 15px; }
+.final-organization strong { color: var(--ink); font-family: var(--font-mono); }
+.final-base, .final-totals { border-top: 1px solid var(--paper-line); }
+.final-base legend, .final-totals legend { padding-right: 8px; font-weight: 600; }
+.final-base-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.final-base-options label {
+  display: flex; gap: 9px 11px; align-items: center; flex-wrap: wrap; padding: 8px 11px;
+  min-height: 46px; background: #f1f2e8; border: 1px solid #84927a; cursor: pointer;
+}
+.final-base-options label .money { margin-left: auto; font-size: 17px; }
+.final-base-options .final-base-selected { border-color: #356144; background: #d5e1cb; }
+.final-paper input[type='radio'] { accent-color: #365a40; }
+.final-paper :is(input, select, summary):focus-visible { outline: 2px solid #365a40; outline-offset: 2px; }
+.final-table { width: 100%; border-collapse: collapse; margin: 17px 0; text-align: left; }
+.final-table thead { background: var(--paper-tint); font-size: 14px; }
+.final-table thead th { font-weight: 600; }
+.final-table th, .final-table td { border-bottom: 1px solid var(--paper-line); padding: 8px 10px; }
+.final-table tbody th { font-weight: 400; }
+.final-table tbody td { vertical-align: top; }
+.final-table tbody td:nth-child(4) { width: 17%; }
+.final-table tbody td:nth-child(5) { width: 23%; }
+.final-table .final-salary, .final-table .final-allowance { vertical-align: middle; white-space: nowrap; }
+.final-salary .money { font-size: 18px; }
+.final-allowance { font: 16px var(--font-mono); }
+.final-table th strong { font-size: 17px; font-weight: 500; }
+.final-table th small { display: block; color: var(--ink-muted); font-size: 14px; }
+.final-mobile-label { display: none; }
+.final-paper :is(select, input:not([type='radio'])), .final-name input {
+  width: 100%; min-width: 0; min-height: 44px; padding: 7px 8px;
+  border: 1px solid #84927a; border-radius: 0; background: #f4f5ea; color: var(--ink);
+  color-scheme: light; font: inherit;
+}
+.final-paper input::placeholder { color: #51604c; opacity: 1; }
+.final-money-input { display: flex; align-items: stretch; position: relative; }
+.final-money-input input { padding-right: 30px !important; font-family: var(--font-mono) !important; }
+.final-money-input > span { position: absolute; right: 8px; top: 11px; color: #455642; pointer-events: none; }
+.final-paper input:disabled { background: #dce0d2; }
+.final-field--invalid :is(select,input) { border-color: #9e3f38 !important; background: #faefe7 !important; }
+.final-base.final-field--invalid label { border-color: #9e3f38; }
+.final-tip { color: #842e2c; font-size: 14px; line-height: 1.4; margin: 5px 0; }
+.final-review { padding: 5px 10px 9px; margin: 8px 0 0; border-left: 2px solid #9e3f38; background: #ebded5; font-size: 14px; }
+.final-review summary { cursor: pointer; padding: 8px 0; font-weight: 600; min-height: 44px; }
+.final-review dl { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; margin: 9px 0; }
+.final-review dd { margin: 0; font-weight: 500; overflow-wrap: anywhere; }
+.final-review .method-placeholder span { color: #4e5143; text-decoration: underline; }
+.final-total-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.final-total-fields > div > label { display: block; margin-bottom: 4px; font-size: 15px; }
+.final-sign {
+  background: #0b1c14; border: 1px solid #5e7157; margin-top: 17px; padding: 16px 22px;
+  display: grid; grid-template-columns: minmax(0,420px) auto; gap: 8px 20px; justify-content: space-between;
+}
+.final-name { display: grid; gap: 4px; }
+.final-name small { color: var(--muted); }
+.final-sign-actions { min-width: 230px; }
+.final-sign-button { width: 100%; }
+.final-sign-actions .hint-button { padding-block: 3px; margin-top: 0; }
+.final-submit-status, .final-help { grid-column: 1 / -1; color: var(--text); font-size: 15px; }
+.final-submit-status:empty { display: none; }
+.final-sign--press .final-sign-button { animation: final-press 320ms var(--ease) both; }
+@keyframes final-press {
+  25% { transform: translateY(3px) scale(.97); }
+  60% { transform: translateY(0) scale(1); }
+}
+@media (max-width:1050px) {
+  .final-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .final-table, .final-table tbody { display: block; }
+  .final-worker { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); border: 1px solid var(--paper-line); margin-bottom: 10px; }
+  .final-worker th { grid-column: 1 / -1; background: var(--paper-tint); }
+  .final-worker td:nth-child(n) { min-width: 0; width: auto; border-bottom: 0; padding: 6px 8px; }
+  .final-review-row, .final-review-row td { display: block; width: 100%; }
+  .final-review-row td { padding: 0 0 10px; border: 0; }
+  .final-mobile-label { display: block; font: 14px/1.3 var(--font-sans); color: var(--ink-muted); margin-bottom: 3px; }
+  .final-salary .money, .final-allowance { font-size: 16px; }
+}
+@media (max-width:640px) {
+  .final-heading { gap: 8px; }
+  .final-heading h1 { max-width: none; }
+  .final-heading p { font-size: 14px; padding: 8px 10px; }
+  .final-organization { margin: 13px 0; }
+  .final-organization h2 { font-size: 25px; }
+  .final-organization p { font-size: 14px; }
+  .final-paper { padding-inline: 12px; }
+  .final-base-options, .final-total-fields, .final-sign { grid-template-columns: 1fr; }
+  .final-base-options label { gap: 7px; font-size: 14px; }
+  .final-base-options label .money { font-size: 14px; }
+  .final-sign { padding-inline: 12px; }
+  .final-sign-actions { min-width: 0; }
+}

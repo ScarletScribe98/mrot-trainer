@@ -1,9 +1,10 @@
 import { useLayoutEffect, useRef, useState } from 'preact/hooks';
+import { formatAllowance } from './calc/final';
 import { baseLabels, generateAuditSheets, parseAuditAmount, type AuditAnswer, type AuditError, type AuditSheet } from './calc/audit';
 import { advanceAudit, requestAuditHint, submitAudit, type AuditStep, type Progress } from './game';
 import { effect } from './audio';
 import { Asset, Portrait } from './ui/artwork';
-import { Button, Document, Folder, Hint, Icon, Money, Stamp } from './ui/components';
+import { Button, Document, Folder, Hint, Icon, MethodNote, Money, Stamp } from './ui/components';
 
 const rowLabels = [
   'МРОТ (учебный)', 'Региональный минимум (учебный)', 'Принятая база B', 'Районный коэффициент k',
@@ -35,7 +36,7 @@ function Worksheet({ sheet, index, selected, canSelect, wrongSelection, detailed
   const values = [
     <Money cents={task.federal}/>, <Money cents={task.regional}/>,
     <><Money cents={shown.base}/><small>{baseLabels[shown.source]}</small></>,
-    task.k.replace('.', ','), Math.round(Number(task.s) * 100) + ' %',
+    task.k.replace('.', ','), formatAllowance(task.s),
     <Money cents={shown.minimum}/>, <Money cents={task.salary}/>, <Money cents={shown.due}/>,
     <span class="audit-verdict">{verdictLabel(shown.violation)}</span>,
   ];
@@ -122,8 +123,7 @@ function AuditFeedback({ sheet, step, detailed }: { sheet: AuditSheet; step: Aud
           })}</tbody>
         </table>
       </details>
-      <p class="method-placeholder"><span role="link" aria-disabled="true">Повторить: часть N, п. X методички</span>
-        <br/><span>TODO(Эрика): уточнить ссылку</span></p>
+      <MethodNote/>
     </>}
   </Hint>;
 }

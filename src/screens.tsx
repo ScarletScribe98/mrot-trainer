@@ -1,5 +1,6 @@
 import { LevelArt, Portrait } from './ui/artwork';
-import type { Progress } from './game';
+import { canOpenFinal, type Progress } from './game';
+import { AVAILABLE_LEVELS, FINAL_LEVEL } from './config';
 import { Button, Document, Icon } from './ui/components';
 export function Title({ onStart }: { onStart: () => void }) {
   return <section class="title-layout">
@@ -26,16 +27,21 @@ const levelDescriptions = [
   'Как менялась минимальная оплата труда', 'Как выбрать применимый минимум', 'Проверьте оплату пяти работников',
   'Найдите ошибку в чужом расчёте', 'Составьте итоговый акт проверки',
 ];
-export function Levels({ progress, onStart, onStartAudit }: { progress: Progress; onStart: () => void; onStartAudit: () => void }) {
-  const { audit, run } = progress;
+export function Levels({ progress, onStart, onStartAudit, onStartFinal }: {
+  progress: Progress; onStart: () => void; onStartAudit: () => void; onStartFinal: () => void;
+}) {
+  const { audit, run, final } = progress;
+  const finalOpen = canOpenFinal(progress);
+  const openCount = AVAILABLE_LEVELS.length - (finalOpen ? 0 : 1);
   const audited = audit.cards.filter(card => card.answered).length;
   const auditStarted = audit.cards.some(card => card.step !== 'row' || card.attempts || card.hint);
   return <section class="levels-screen">
     <div class="eyebrow brass">Каталог практических дел</div>
-    <div class="section-heading"><h1>Архив дел</h1><span class="catalog-count">02 / 05 ДОСТУПНО</span></div>
+    <div class="section-heading"><h1>Архив дел</h1><span class="catalog-count">{String(openCount).padStart(2, '0')} / 05 ДОСТУПНО</span></div>
     <p class="intro">Проверьте карточки работников или найдите ошибку в готовом расчёте.</p>
     <div class="levels-grid">{levelNames.map((name, i) => {
-      const open = i === 2 || i === 3;
+      const level = i + 1;
+      const open = AVAILABLE_LEVELS.includes(level) && (level !== FINAL_LEVEL || finalOpen);
       return <article class={'level-card' + (open ? ' level-card--open' : '')} key={name}>
         <div class="level-card-top"><span class="level-number">{String(i + 1).padStart(2, '0')}</span>
           <span class="eyebrow">{i === 4 ? 'Финальная проверка' : 'Уровень ' + (i + 1)}</span>{!open && <Icon name="lock" size={19}/>}</div>
@@ -49,10 +55,14 @@ export function Levels({ progress, onStart, onStartAudit }: { progress: Progress
           <div class="level-open-meta"><span>5 листов · ≈ 4 минуты</span><span aria-label={'Проверено ' + audited + ' из 5 листов'}>{audited}/5</span></div>
           <Button onClick={onStartAudit}>{audit.completed ? 'Результат аудита' : auditStarted ? 'Продолжить аудит' : 'Открыть ведомость'}<Icon name="arrow"/></Button>
         </>}
-        {!open && <span class="locked-note">Будет доступно позже</span>}
+        {level === FINAL_LEVEL && open && <>
+          <div class="level-open-meta"><span>4 работника · ≈ 4 минуты</span><span>{final.act ? 'ПРОЙДЕНО' : 'ФИНАЛ'}</span></div>
+          <Button onClick={onStartFinal}>{final.act ? 'Открыть акт проверки' : final.attempts || final.draft.base ? 'Продолжить дело № 001' : 'Открыть дело № 001'}<Icon name="arrow"/></Button>
+        </>}
+        {!open && <span class="locked-note">{level === FINAL_LEVEL ? 'Пройдите уровни 3 и 4' : 'Будет доступно позже'}</span>}
       </article>;
     })}</div>
     <div class="archive-note"><Icon name="info" size={20}/><p>Все работники, организации, регионы и суммы вымышлены.</p></div>
   </section>;
 }
-export function About({ onReset }: { onReset: () => void }) { return <section class="about-screen"><div class="eyebrow brass">Паспорт проекта / Этап 1</div><h1>Об игре и источники</h1><p class="intro">Учимся внимательно читать документы и проверять расчёты минимальной оплаты труда.</p><Document class="about-document"><span class="eyebrow">Важно перед началом</span><h2>Это учебный архив.</h2><p>Все данные демонстрационные. ФИО, организации и регионы вымышлены. Суммы и коэффициенты служат только для освоения механики и не являются реальными значениями МРОТ или региональных минимумов.</p><h3>Основание расчёта</h3><p>Применимый минимум = B × (k + s). B — большая из учебной и региональной баз. Недоплата — положительная разность между минимумом и зарплатой. Расчёты выполняются в целых копейках, временное округление — до копеек, половина вверх.</p><p class="todo-note">TODO(Эрика): реальные данные, правила применимости регионального минимума, округление, эталонные примеры и точные ссылки на методичку v5.</p><h3>Опыт и прогресс</h3><p>Первая попытка — +100. Исправление после первой ошибки с короткой обратной связью — +70. Открытая подсказка или разбор после повторной ошибки — +50. Три карточки или ведомости подряд без ошибок и подсказок — ещё +50. Прогресс и настройки сохраняются только в этом браузере.</p><p>Пороги званий: 0, 300, 800 и 1 500 очков. Правила опыта и пороги званий согласованы с Артёмом. Уровни 1, 2 и финал появятся позже; награда за всю игру пока недоступна.</p><h3>Материалы и авторство</h3><p>Основа — ТЗ «Инспектор труда», версия 1, и ТЗ этапа 0. Точные данные и ссылки из методички v5 ещё не добавлены: TODO(Эрика).</p><p>Шрифты Source Serif 4, Golos Text и IBM Plex Mono — SIL Open Font License 1.1. Они хранятся локально. Рисунки, иконки и бумажные фактуры созданы для проекта в CSS/SVG. Звуковые эффекты и тихий фоновый аккорд синтезируются через Web Audio. Чужие изображения в игре не используются.</p><h3>Лица учебного архива</h3><p>Шесть оригинальных вымышленных профилей. Портреты сгенерированы ИИ в манере дуотонной гравюры и не изображают реальных людей.</p><div class="portrait-catalog">{Array.from({ length: 6 }, (_, index) => <Portrait key={index} index={index}/>)}</div><h3>Без интернета</h3><p>После полной первой загрузки приложение сохраняется на устройстве. Дождитесь отметки «Архив доступен без интернета» внизу страницы. Музыка по умолчанию выключена.</p></Document><div class="reset-area"><div><h2>Начать с чистого листа</h2><p>Удалить сохранённый опыт и результаты на этом устройстве.</p></div><Button variant="secondary" onClick={onReset}>Начать заново</Button></div></section>; }
+export function About({ onReset }: { onReset: () => void }) { return <section class="about-screen"><div class="eyebrow brass">Паспорт проекта / Этап 2</div><h1>Об игре и источники</h1><p class="intro">Учимся внимательно читать документы и проверять расчёты минимальной оплаты труда.</p><Document class="about-document"><span class="eyebrow">Важно перед началом</span><h2>Это учебный архив.</h2><p>Все данные демонстрационные. ФИО, организации и регионы вымышлены. Суммы и коэффициенты служат только для освоения механики и не являются реальными значениями МРОТ или региональных минимумов.</p><h3>Основание расчёта</h3><p>Применимый минимум = B × (k + s). B — большая из учебной и региональной баз. Недоплата — положительная разность между минимумом и зарплатой. Расчёты выполняются в целых копейках, временное округление — до копеек, половина вверх.</p><p class="todo-note">В этой версии используются учебные данные и текущее правило расчёта тренажёра.</p><h3>Опыт и прогресс</h3><p>Первая попытка — +100. Исправление после первой ошибки с короткой обратной связью — +70. Открытая подсказка или разбор после повторной ошибки — +50. Три карточки или ведомости подряд без ошибок и подсказок — ещё +50. Прогресс и настройки сохраняются только в этом браузере.</p><p>Пороги званий: 0, 300, 800 и 1 500 очков. Правила опыта и пороги званий согласованы с Артёмом. Финальное дело открывается после уровней 3 и 4. Завершение всех доступных уровней даёт ещё 150 очков.</p><h3>Материалы и авторство</h3><p>Основа — ТЗ «Инспектор труда», версия 1. Материалы для повторения будут добавлены после сверки методички.</p><p>Шрифты Source Serif 4, Golos Text и IBM Plex Mono — SIL Open Font License 1.1. Они хранятся локально. Рисунки, иконки и бумажные фактуры созданы для проекта в CSS/SVG. Звуковые эффекты и тихий фоновый аккорд синтезируются через Web Audio. Чужие изображения в игре не используются.</p><h3>Лица учебного архива</h3><p>Шесть оригинальных вымышленных профилей. Портреты сгенерированы ИИ в манере дуотонной гравюры и не изображают реальных людей.</p><div class="portrait-catalog">{Array.from({ length: 6 }, (_, index) => <Portrait key={index} index={index}/>)}</div><h3>Без интернета</h3><p>После полной первой загрузки приложение сохраняется на устройстве. Дождитесь отметки «Архив доступен без интернета» внизу страницы. Музыка по умолчанию выключена.</p></Document><div class="reset-area"><div><h2>Начать с чистого листа</h2><p>Удалить сохранённый опыт и результаты на этом устройстве.</p></div><Button variant="secondary" onClick={onReset}>Начать заново</Button></div></section>; }

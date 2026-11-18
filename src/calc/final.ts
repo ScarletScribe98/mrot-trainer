@@ -16,7 +16,7 @@ export interface FinalDraft {
   conclusion: FinalVerdict;
   name: string;
 }
-export type FinalCell = 'base' | 'total' | 'conclusion' | \`row-\${number}-verdict\` | \`row-\${number}-amount\`;
+export type FinalCell = 'base' | 'total' | 'conclusion' | `row-${number}-verdict` | `row-${number}-amount`;
 
 export function newFinalDraft(): FinalDraft {
   return { base: '', rows: workers.map(() => ({ verdict: '', amount: '' })), total: '', conclusion: '', name: '' };
@@ -56,9 +56,9 @@ export function checkFinalAnswers(sheet: FinalSheet, draft: FinalDraft): FinalCe
   sheet.rows.forEach((row, index) => {
     const answer = draft.rows[index];
     const violation = row.due > 0;
-    if (answer?.verdict !== (violation ? 'yes' : 'no')) issues.push(\`row-\${index}-verdict\`);
+    if (answer?.verdict !== (violation ? 'yes' : 'no')) issues.push(`row-${index}-verdict`);
     if (violation && answer?.verdict === 'yes' && parseAuditAmount(answer.amount) !== row.due) {
-      issues.push(\`row-\${index}-amount\`);
+      issues.push(`row-${index}-amount`);
     }
   });
   if (parseAuditAmount(draft.total) !== sheet.total) issues.push('total');
