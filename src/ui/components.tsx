@@ -13,6 +13,8 @@ export function Document({ children, class: className = '' }: { children: Compon
 export function Stamp({ children }: { children: ComponentChildren }) { return <div class="stamp" role="status"><Asset name="stamp-frame" class="stamp-ink" stretch/><span>{children}</span></div>; }
 export function Hint({ detailed = false, children }: { detailed?: boolean; children: ComponentChildren }) { return <aside class={`hint ${detailed ? 'hint--detailed' : ''}`} aria-label={detailed ? 'Пошаговый разбор' : 'Подсказка'}><span class="eyebrow">{detailed ? 'Порядок проверки' : 'На что обратить внимание'}</span>{children}</aside>; }
 const methodSections = {
+  history: [['p2-1-4', 'Часть 2, п. 2.1–2.4']],
+  variants: [['p4-1', 'Часть 4, п. 4.1–4.2']],
   base: [['p1-2', 'Часть 1, п. 1.2']],
   coefficients: [['p1-3', 'Часть 1, п. 1.3'], ['appendix-1', 'Приложение 1']],
   topup: [['p4-1', 'Часть 4, п. 4.1, формула (3)']],

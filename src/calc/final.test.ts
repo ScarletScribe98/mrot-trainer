@@ -74,12 +74,13 @@ describe('Зачёт и сохранение итогового акта', () =>
     const one = finishLevel(blank, 3);
     expect(canOpenFinal(one)).toBe(false);
     expect(submitFinal(one, today)).toBe(one);
-    const ready = finishLevel(one, 4);
+    expect(canOpenFinal(finishLevel(one, 4))).toBe(true);
+    const ready = [1, 2, 4].reduce(finishLevel, one);
     expect(canOpenFinal(ready)).toBe(true);
     expect(ready.xp).toBe(0);
     const sheet = generateFinalSheet(ready.final.seed);
     const signed = submitFinal({ ...ready, final: { ...ready.final, draft: solved(sheet) } }, today);
-    expect(signed.completed).toEqual([3, 4, FINAL_LEVEL]);
+    expect(signed.completed).toEqual([3, 1, 2, 4, FINAL_LEVEL]);
     expect(signed.xp).toBe(100 + ALL_LEVELS_XP);
     expect(signed.allLevelsBonusAwarded).toBe(true);
     expect(signed.final.act).toEqual({ date: '2026-11-18', xp: 250, reward: 100, bonus: ALL_LEVELS_XP, cleanCases: 1, method: 5 });
@@ -92,7 +93,7 @@ describe('Зачёт и сохранение итогового акта', () =>
   });
 
   it('зачисляет +70 после первой ошибки и +50 после разбора или запрошенной подсказки', () => {
-    const eligible = { ...initialProgress(), completed: [4, 3] };
+    const eligible = { ...initialProgress(), completed: [1, 2, 4, 3] };
     const draft = solved(generateFinalSheet(eligible.final.seed));
     const first = submitFinal(eligible, today);
     expect(first.final.attempts).toBe(1);

@@ -3,6 +3,7 @@ import { showMoney } from './calc/payroll';
 import { AUDIT_SEED, checkAuditAnswer, type AuditAnswer, type AuditSheet } from './calc/audit';
 import { checkFinalAnswers, FINAL_SEED, generateFinalSheet, newFinalDraft, type FinalCell, type FinalDraft } from './calc/final';
 import { ALL_LEVELS_XP, AVAILABLE_LEVELS, FINAL_LEVEL } from './config';
+import { drawRegions, historyPairs, MAP_SEED, regionCases } from './data/real/study';
 export type Verdict = 'yes' | 'no';
 export interface CardState { attempts: number; hint: boolean; answered: boolean; reward: number; }
 export interface Run { seed: number; index: number; cards: CardState[]; streak: number; earned: number; completed: boolean; }
@@ -18,6 +19,16 @@ interface FinalRun {
  issues: FinalCell[];
  act: InspectionAct | null;
 }
+export interface RegionalAttempt { step: number; attempts: number; wrong: boolean; }
+interface Study {
+ history: { turn: number; attempts: number; accepted: boolean };
+ map: { seed: number; cases: RegionalAttempt[] };
+}
+export function newRegionalAttempt(): RegionalAttempt { return { step: 0, attempts: 0, wrong: false }; }
+function newStudy(): Study {
+ return { history: { turn: 0, attempts: 0, accepted: false },
+  map: { seed: MAP_SEED, cases: regionCases.map(newRegionalAttempt) } };
+}
 export interface Progress {
  version: 1;
  xp: number;
@@ -30,8 +41,9 @@ export interface Progress {
  allLevelsBonusAwarded: boolean;
  methodVersion: 5;
  migrationNotice: boolean;
+ study: Study;
 }
-type AddedFields = 'audit' | 'final' | 'allLevelsBonusAwarded' | 'methodVersion' | 'migrationNotice';
+type AddedFields = 'audit' | 'final' | 'allLevelsBonusAwarded' | 'methodVersion' | 'migrationNotice' | 'study';
 type SavedProgress = Omit<Progress, AddedFields> & Partial<Pick<Progress, AddedFields>>;
 export const STORAGE_KEY = 'inspektor-truda-v1';
 export function newRun(seed = 73103): Run { return { seed, index: 0, cards: Array.from({ length: 5 }, () => ({ attempts: 0, hint: false, answered: false, reward: 0 })), streak: 0, earned: 0, completed: false }; }
@@ -44,7 +56,7 @@ function newFinalRun(): FinalRun {
 }
 export function initialProgress(): Progress {
  return { version: 1, xp: 0, completed: [], sound: true, music: false,
-  run: newRun(), audit: newAuditRun(), final: newFinalRun(), allLevelsBonusAwarded: false, methodVersion: 5, migrationNotice: false };
+  run: newRun(), audit: newAuditRun(), final: newFinalRun(), allLevelsBonusAwarded: false, methodVersion: 5, migrationNotice: false, study: newStudy() };
 }
 export function rank(xp: number): string { return xp >= 1500 ? 'Главный аудитор' : xp >= 800 ? 'Специалист по расчётам' : xp >= 300 ? 'Младший инспектор' : 'Стажёр'; }
 export function nextRank(xp: number): number { return [300, 800, 1500].find(n => n > xp) ?? 1500; }
@@ -67,7 +79,7 @@ function gradeCard<T extends CardState>(run: Run, state: T, correct: boolean) {
  } else { card.attempts++; if (card.attempts >= 2) card.hint = true; }
  return { card, reward, streak };
 }
-function attemptReward({ hint, attempts }: Pick<CardState, 'hint' | 'attempts'>): number {
+export function attemptReward({ hint, attempts }: Pick<CardState, 'hint' | 'attempts'>): number {
  return hint || attempts >= 2 ? 50 : attempts > 0 ? 70 : 100;
 }
 const nextStep = { row: 'explanation', explanation: 'correction', correction: 'correction' } as const;
@@ -106,6 +118,39 @@ export function advanceAudit(progress: Progress): Progress {
  if (audit.completed || !audit.cards[audit.index].answered) return progress;
  if (audit.index < audit.cards.length - 1) return { ...progress, audit: { ...audit, index: audit.index + 1 } };
  return finishLevel({ ...progress, audit: { ...audit, completed: true } }, 4);
+}
+
+export function submitHistory(p: Progress, correct: boolean): Progress {
+ const state = p.study.history;
+ if (state.accepted || state.turn > historyPairs.length) return p;
+ const history = correct ? { ...state, accepted: true } : { ...state, attempts: state.attempts + 1 };
+ return { ...p, study: { ...p.study, history },
+  xp: p.xp + (correct ? attemptReward({ ...state, hint: false }) : 0) };
+}
+
+export function nextHistory(p: Progress): Progress {
+ const state = p.study.history;
+ if (!state.accepted) return p;
+ const history = { turn: state.turn + 1, attempts: 0, accepted: false };
+ const updated = { ...p, study: { ...p.study, history } };
+ return state.turn === historyPairs.length ? finishLevel(updated, 1) : updated;
+}
+
+export function gradeRegionalAttempt(state: RegionalAttempt, correct: boolean): RegionalAttempt {
+ if (state.step >= 3) return state;
+ return correct ? { ...state, step: state.step + 1, wrong: false }
+  : { ...state, attempts: state.attempts + 1, wrong: true };
+}
+
+export function submitRegional(p: Progress, id: number, correct: boolean): Progress {
+ const map = p.study.map;
+ const assigned = drawRegions(map.seed);
+ if (!assigned.includes(id) || map.cases[id - 1].step >= 3) return p;
+ const next = gradeRegionalAttempt(map.cases[id - 1], correct);
+ const cases = map.cases.map((state, i) => i === id - 1 ? next : state);
+ const xp = next.step === 3 ? attemptReward({ attempts: next.attempts, hint: false }) : 0;
+ const updated = { ...p, xp: p.xp + xp, study: { ...p.study, map: { ...map, cases } } };
+ return assigned.every(caseId => cases[caseId - 1].step === 3) ? finishLevel(updated, 2) : updated;
 }
 
 export function canOpenFinal(progress: Progress) {
@@ -161,6 +206,15 @@ function validateFinal(final: FinalRun): boolean {
    (act.method === undefined || act.method === 5) && integer(act.xp) && [50, 70, 100].includes(act.reward) && [0, ALL_LEVELS_XP].includes(act.bonus) && integer(act.cleanCases, 11)));
 }
 
+function validateStudy(study: Study): boolean {
+ const history = study?.history;
+ const map = study?.map;
+ return !!history && integer(history.turn, historyPairs.length + 1) && integer(history.attempts) &&
+  typeof history.accepted === 'boolean' &&
+  !!map && integer(map.seed, 4294967295) && Array.isArray(map.cases) && map.cases.length === regionCases.length &&
+  map.cases.every(state => state && integer(state.step, 3) && integer(state.attempts) && typeof state.wrong === 'boolean');
+}
+
 export function validateProgress(value: unknown): value is SavedProgress {
  if (!value || typeof value !== 'object') return false;
  const p = value as SavedProgress;
@@ -171,7 +225,8 @@ export function validateProgress(value: unknown): value is SavedProgress {
   (p.allLevelsBonusAwarded === undefined || typeof p.allLevelsBonusAwarded === 'boolean') &&
   (p.final === undefined || validateFinal(p.final)) &&
   (p.methodVersion === undefined || p.methodVersion === 5) &&
-  (p.migrationNotice === undefined || typeof p.migrationNotice === 'boolean');
+  (p.migrationNotice === undefined || typeof p.migrationNotice === 'boolean') &&
+  (p.study === undefined || validateStudy(p.study));
 }
 
 export function loadProgress(): Progress {
@@ -181,7 +236,7 @@ export function loadProgress(): Progress {
   const progress: Progress = {
    ...saved, audit: saved.audit ?? newAuditRun(), final: saved.final ?? newFinalRun(),
    allLevelsBonusAwarded: saved.allLevelsBonusAwarded ?? false, methodVersion: 5,
-   migrationNotice: saved.migrationNotice ?? false,
+   migrationNotice: saved.migrationNotice ?? false, study: saved.study ?? newStudy(),
   };
   if (saved.methodVersion === 5) return progress;
   const { run, audit, final } = progress;

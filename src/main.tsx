@@ -5,6 +5,8 @@ import { canOpenFinal, initialProgress, loadProgress, newAuditRun, newRun, rank,
 import { effect, setMusic } from './audio';
 import { AudioToggles, Button, Icon, XPPanel } from './ui/components';
 import { Title, Levels, About } from './screens';
+import { LevelOne } from './LevelOne';
+import { LevelTwo } from './LevelTwo';
 import { Game } from './LevelThree';
 import { LevelFour } from './LevelFour';
 import { FinalCase } from './FinalCase';
@@ -24,9 +26,10 @@ import './ui/audit.css';
 import './ui/final.css';
 import './ui/act.css';
 import './ui/payroll.css';
-type Screen = 'title' | 'levels' | 'game' | 'audit' | 'final' | 'act' | 'about';
-const screens: Record<Screen, string> = { title: 'Главная', levels: 'Архив дел', game: 'Карточки работников', audit: 'Аудит ведомости', final: 'Дело № 001', act: 'Акт проверки', about: 'Об игре и источники' };
-function readScreen(): Screen { const hash = location.hash.slice(1); return ['title', 'levels', 'game', 'audit', 'final', 'act', 'about'].includes(hash) ? hash as Screen : 'title'; }
+import './ui/real.css';
+type Screen = 'title' | 'levels' | 'history' | 'map' | 'game' | 'audit' | 'final' | 'act' | 'about';
+const screens: Record<Screen, string> = { title: 'Главная', levels: 'Архив дел', history: 'Машина времени', map: 'Карта минимумов', game: 'Карточки работников', audit: 'Аудит ведомости', final: 'Дело № 001', act: 'Акт проверки', about: 'Об игре и источники' };
+function readScreen(): Screen { const hash = location.hash.slice(1); return Object.hasOwn(screens, hash) ? hash as Screen : 'title'; }
 // Старые ссылки сохраняют экран и остальные параметры, но больше не выбирают тему.
 const entryUrl = new URL(location.href);
 if (entryUrl.searchParams.has('theme')) { entryUrl.searchParams.delete('theme'); history.replaceState(history.state, '', entryUrl); }
@@ -35,6 +38,7 @@ function App() {
  const [progress, setProgress] = useState<Progress>(loadProgress);
  const screen = (route === 'final' || route === 'act') && !canOpenFinal(progress) ? 'levels'
   : route === 'act' && !progress.final.act ? 'final' : route;
+ const realScreen = screen === 'history' || screen === 'map';
  const [storageError, setStorageError] = useState(false);
  const [resetting, setResetting] = useState(false);
  const [offlineReady, setOfflineReady] = useState(false);
@@ -54,8 +58,8 @@ function App() {
  const replayAudit = () => { setProgress(p => ({ ...p, audit: newAuditRun((p.audit.seed + 1777) >>> 0) })); navigate('audit'); };
  const toggleSound = () => { effect('click', !progress.sound); setProgress(p => ({ ...p, sound: !p.sound })); };
  const toggleMusic = () => { setMusic(!progress.music); setProgress(p => ({ ...p, music: !p.music })); };
- return <div class="app-shell"><OfficeScene screen={screen}/><a class="skip-link" href="#main">К содержимому</a><header class="topbar"><button class="brand" onClick={() => navigate('title')} title="На главную"><span class="brand-mark"><Icon name="archive" size={30}/></span><span>Инспектор труда<small>Дело о минимальной зарплате</small></span></button><div class="header-center"><span class="status-dot"/>Учебный архив <span class="slash">/</span> Дело № {screen === 'final' || screen === 'act' ? '001' : screen === 'audit' ? '004' : '003'}</div><button class="about-link" onClick={() => navigate('about')}><Icon name="info" size={20}/><span>Об игре</span></button></header>
- <div class="body-layout"><aside class="sidebar"><div class="sidebar-label eyebrow">Рабочий стол</div><nav aria-label="Основная навигация"><button aria-current={screen === 'title' ? 'page' : undefined} onClick={() => navigate('title')}><span class="nav-index">01</span>Вводная<Icon name="arrow" size={16}/></button><button aria-current={screen === 'levels' || screen === 'game' || screen === 'audit' || screen === 'final' || screen === 'act' ? 'page' : undefined} onClick={() => navigate('levels')}><span class="nav-index">02</span>Архив дел<Icon name="arrow" size={16}/></button><button aria-current={screen === 'about' ? 'page' : undefined} onClick={() => navigate('about')}><span class="nav-index">03</span>Об игре<Icon name="arrow" size={16}/></button></nav><div class="sidebar-note"><span class="tiny-line"/><p>Точность —<br/>дело принципа.</p><small>Проверьте цифры.<br/>Защитите право на оплату.</small></div><div class="sidebar-bottom"><XPPanel xp={progress.xp}/><AudioToggles sound={progress.sound} music={progress.music} onSound={toggleSound} onMusic={toggleMusic}/></div></aside>
+ return <div class="app-shell"><OfficeScene screen={screen}/><a class="skip-link" href="#main">К содержимому</a><header class="topbar"><button class="brand" onClick={() => navigate('title')} title="На главную"><span class="brand-mark"><Icon name="archive" size={30}/></span><span>Инспектор труда<small>Дело о минимальной зарплате</small></span></button><div class="header-center"><span class="status-dot"/>Учебный архив <span class="slash">/</span> {realScreen ? 'Методичка v5' : 'Дело № ' + (screen === 'final' || screen === 'act' ? '001' : screen === 'audit' ? '004' : '003')}</div><button class="about-link" onClick={() => navigate('about')}><Icon name="info" size={20}/><span>Об игре</span></button></header>
+ <div class="body-layout"><aside class="sidebar"><div class="sidebar-label eyebrow">Рабочий стол</div><nav aria-label="Основная навигация"><button aria-current={screen === 'title' ? 'page' : undefined} onClick={() => navigate('title')}><span class="nav-index">01</span>Вводная<Icon name="arrow" size={16}/></button><button aria-current={screen === 'levels' || realScreen || screen === 'game' || screen === 'audit' || screen === 'final' || screen === 'act' ? 'page' : undefined} onClick={() => navigate('levels')}><span class="nav-index">02</span>Архив дел<Icon name="arrow" size={16}/></button><button aria-current={screen === 'about' ? 'page' : undefined} onClick={() => navigate('about')}><span class="nav-index">03</span>Об игре<Icon name="arrow" size={16}/></button></nav><div class="sidebar-note"><span class="tiny-line"/><p>Точность —<br/>дело принципа.</p><small>Проверьте цифры.<br/>Защитите право на оплату.</small></div><div class="sidebar-bottom"><XPPanel xp={progress.xp}/><AudioToggles sound={progress.sound} music={progress.music} onSound={toggleSound} onMusic={toggleMusic}/></div></aside>
  <main id="main" ref={headingRef} tabIndex={-1} class={`main main--${screen}`}><div key={screen} class="screen">
  {progress.migrationNotice && <div class="storage-warning" role="status">
   Незавершённые расчёты начаты заново по методичке v5. Опыт и завершённые дела сохранены.
@@ -63,7 +67,9 @@ function App() {
  </div>}
  {storageError && <p class="storage-warning" role="alert">Хранилище браузера недоступно. В этой сессии можно играть, но прогресс не сохранится.</p>}
  {screen === 'title' && <Title onStart={() => navigate('levels')}/>}
- {screen === 'levels' && <Levels progress={progress} onStart={() => navigate('game')} onStartAudit={() => navigate('audit')} onStartFinal={() => navigate(progress.final.act ? 'act' : 'final')}/>}
+ {screen === 'levels' && <Levels progress={progress} onHistory={() => navigate('history')} onMap={() => navigate('map')} onStart={() => navigate('game')} onStartAudit={() => navigate('audit')} onStartFinal={() => navigate(progress.final.act ? 'act' : 'final')}/>}
+ {screen === 'history' && <LevelOne progress={progress} update={setProgress} onBack={() => navigate('levels')}/>}
+ {screen === 'map' && <LevelTwo progress={progress} update={setProgress} onBack={() => navigate('levels')}/>}
  {screen === 'game' && <Game key={progress.run.seed} progress={progress} update={setProgress} onBack={() => navigate('levels')} onReplay={replay}/>}
  {screen === 'audit' && <LevelFour key={progress.audit.seed} progress={progress} update={setProgress} onBack={() => navigate('levels')} onReplay={replayAudit}/>}
  {screen === 'final' && <FinalCase progress={progress} update={setProgress} onBack={() => navigate('levels')} onSigned={showSignedAct}/>}
@@ -72,7 +78,7 @@ function App() {
    progress.final.act, progress.final.draft.name)}
   onBack={() => navigate('levels')}/>}
  {screen === 'about' && <About onReset={() => setResetting(true)}/>}
- </div><footer class="main-footer"><span><span class="status-dot"/>{offlineReady ? 'Архив доступен без интернета' : 'Локальный учебный тренажёр'}</span><span>ДЕМОВЕРСИЯ <span class="slash">/</span> ЭТАП 3</span></footer></main></div>
+ </div><footer class="main-footer"><span><span class="status-dot"/>{offlineReady ? 'Архив доступен без интернета' : 'Локальный учебный тренажёр'}</span><span>{realScreen ? 'МЕТОДИЧКА V5' : 'УЧЕБНЫЙ АРХИВ'} <span class="slash">/</span> ЭТАП 4</span></footer></main></div>
  <div class="mobile-tools"><span>{rank(progress.xp)} · {progress.xp} очков</span><AudioToggles sound={progress.sound} music={progress.music} onSound={toggleSound} onMusic={toggleMusic}/></div>
  {resetting && <div class="modal-backdrop"><section role="dialog" aria-modal="true" aria-labelledby="reset-title" class="reset-dialog" onKeyDown={e => { if (e.key === 'Escape') setResetting(false); if (e.key === 'Tab') { const buttons = e.currentTarget.querySelectorAll('button'); const first = buttons[0], last = buttons[buttons.length - 1]; if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); } else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); } } }}><h2 id="reset-title">Открыть чистое дело?</h2><p>Опыт и результаты проверок будут удалены с этого устройства.</p><Button autoFocus onClick={() => { setMusic(false); setProgress(initialProgress()); setResetting(false); navigate('title'); }}>Начать заново</Button><Button variant="quiet" onClick={() => setResetting(false)}>Отмена</Button></section></div>}
  </div>;

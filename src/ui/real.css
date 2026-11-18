@@ -1,0 +1,99 @@
+.real-screen .game-heading h1 { margin-top: 0; max-width: none; }
+.real-screen .game-heading { margin-bottom: 26px; }
+.real-screen .folder { min-width: 0; align-self: start; }
+.real-source { color: var(--ink-muted); font-size: 14px; }
+.real-screen .inspection-panel .real-source { color: var(--muted); }
+.real-details { margin-top: 10px; }
+.real-details summary { cursor: pointer; min-height: 44px; padding: 9px 0; font-weight: 500; }
+.real-screen .document summary:focus-visible { outline-color: #39573e; }
+.real-actions, .real-task-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.real-actions { margin-top: 16px; flex-wrap: wrap; }
+.real-task-head { margin-bottom: 10px; }
+.real-task-head h2 { margin: 0; min-width: 0; }
+.real-task-head > span { font: 15px var(--font-mono); flex: 0 0 auto; }
+.real-screen .method-placeholder { margin: 14px 0; }
+.real-screen .method-placeholder a { color: var(--accent); }
+.real-screen .hint .method-placeholder { margin: 10px 0 0; }
+.real-screen .game-breadcrumb .return-map { margin-left: auto; color: var(--accent); }
+.history-screen { display: grid; grid-template-columns: minmax(0,1.12fr) minmax(0,1fr); gap: 0 22px; align-items: start; }
+.history-screen > :is(.game-breadcrumb, .game-heading) { grid-column: 1 / -1; }
+.history-screen > .inspection-panel { margin-top: 26px; }
+.history-paper > .real-source { margin-top: 5px; }
+.timeline-track {
+ display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); gap: 7px; margin: 19px 0 12px;
+ border-top: 1px solid var(--paper-line); padding-top: 13px;
+}
+.timeline-track span {
+ text-align: center; display: grid; place-items: center; min-height: 48px;
+ background: var(--paper-tint); border: 1px solid var(--paper-line); font: 15px/1.25 var(--font-mono);
+}
+.timeline-track .timeline-project { background: #efdfc1; border-color: #a48f62; }
+.history-table table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+.history-table :is(td,th) { border-bottom: 1px solid var(--paper-line); padding: 5px 7px; text-align: right; }
+.history-table th:first-child { text-align: left; }
+.history-table th small, .history-dates li small { display: block; color: var(--ink-muted); font-size: 14px; }
+.history-table td { font: 14px var(--font-mono); white-space: nowrap; }
+.history-dates section { margin: 12px 0; }
+.history-dates li + li { margin-top: 6px; }
+.history-comparison { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; margin-top: 14px; }
+.history-year { padding: 11px; background: #14291e; border: 1px solid #607055; }
+.history-year h3 { font-family: var(--font-serif); font-size: 21px; }
+.history-year dl { margin: 10px 0; }
+.history-year dl div + div { margin-top: 4px; }
+.history-year dt { color: var(--muted); font-size: 14px; }
+.history-year dd { font-family: var(--font-mono); margin: 0; }
+.history-year .history-ratio { font-size: 23px; color: var(--accent); }
+.history-questionmark { color: var(--accent); font: 35px var(--font-serif); margin-top: 24px; }
+.history-sort { margin: 15px 0; padding-left: 30px; }
+.history-sort li { border-bottom: 1px solid var(--line); padding: 7px 0; }
+.history-arrows { display: inline-flex; vertical-align: middle; gap: 5px; margin-left: 7px; }
+.history-arrows button { min-width: 44px; min-height: 44px; border: 1px solid #6c805f; background: #243a2c; }
+.history-arrows button:disabled { opacity: .55; }
+.map-paper > p { margin-bottom: 8px; }
+.map-paper > .stamp { margin: 8px 0 13px; }
+.region-map {
+ list-style: none; padding: 0; display: grid; grid-template-columns: repeat(5,minmax(0,1fr));
+ gap: 11px; margin: 18px 0 0;
+}
+.region-map li { min-width: 0; }
+.region-map button {
+ width: 100%; height: 100%; min-height: 91px; display: flex; flex-direction: column; align-items: start; gap: 8px;
+ text-align: left; padding: 13px 11px; border: 1px solid #879780; border-radius: 2px 11px 2px 11px;
+ background: #eef0e6; color: var(--ink); font-size: 17px; line-height: 1.3; overflow-wrap: anywhere;
+}
+.region-map button small { color: #465745; font-size: 14px; }
+.region-map button:enabled:hover, .region-map .region-assigned { background: #d6e3cc; border-color: #5e7559; }
+.region-map button:focus-visible { outline-color: #39573e; }
+.region-map button:disabled { background: #e3e5d9; }
+.region-case { display: grid; grid-template-columns: minmax(0,1.12fr) minmax(0,1fr); gap: 0 23px; align-items: start; }
+.region-case > .inspection-panel { margin-top: 26px; min-width: 0; }
+.region-paper h2 { margin: 14px 0 5px; }
+.region-condition p { margin: 13px 0; }
+.region-facts, .region-context { margin: 12px 0 0; padding: 10px 0; border-block: 1px solid var(--paper-line); }
+.region-facts div, .region-context div { display: flex; gap: 8px; align-items: baseline; justify-content: space-between; }
+.region-facts dd, .region-context dd { margin: 0; text-align: right; }
+.region-form { display: grid; gap: 10px; margin: 10px 0; }
+.real-field { display: grid; gap: 4px; min-width: 0; }
+.real-field :is(input,select) {
+ font: inherit; min-width: 0; width: 100%; min-height: 44px; padding: 7px; border: 1px solid #6b805e;
+ background: #f0f1e8; color: #26372b; color-scheme: light;
+}
+.region-form > .button { justify-self: start; }
+.region-review p { margin: 5px 0; }
+.region-review p:empty { display: none; }
+@media (max-width:1120px) {
+ .history-screen, .region-case { grid-template-columns: 1fr; }
+ .region-map { grid-template-columns: repeat(3,minmax(0,1fr)); }
+}
+@media (max-width:600px) {
+ .real-screen .game-breadcrumb { flex-wrap: wrap; }
+ .real-task-head h2, .real-screen .document h2 { font-size: 26px; }
+ .timeline-track { grid-template-columns: repeat(4,minmax(0,1fr)); }
+ .timeline-track span { font-size: 13px; }
+ .history-table :is(td,th) { padding-inline: 3px; font-size: 12px; }
+ .history-table th small { font-size: 11px; }
+ .region-map { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 7px; }
+ .region-map button { font-size: 15px; padding: 9px 7px; min-height: 75px; }
+ .region-condition p, .region-facts, .region-context { font-size: 14px; }
+ .real-screen .document-top>span:last-child { padding-right: 0; }
+}
